@@ -1,8 +1,202 @@
 ﻿@{
-    ViewData["Title"] = "Home Page";
+    Layout = "Landing_Layout";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
-</div>
+
+@{
+    Layout = "~/Views/Shared/Landing_Layout.cshtml";
+    ViewData["Title"] = "Inicio";
+}
+<link href="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.css" rel="stylesheet">
+
+
+<!-- HERO CON CARRUSEL -->
+<section class="hero" data-aos="zoom-out">
+    <div id="carouselColegio" class="carousel slide" data-bs-ride="carousel">
+        <div class="carousel-inner">
+            <div class="carousel-item active">
+                <img src="~/img/carrusel1.png" class="d-block w-100">
+            </div>
+            <div class="carousel-item">
+                <img src="~/img/carrusel4.jpg" class="d-block w-100">
+            </div>
+            <div class="carousel-item">
+                <img src="~/img/carrusel5.jpg" class="d-block w-100">
+            </div>
+        </div>
+
+        <button class="carousel-control-prev" type="button" data-bs-target="#carouselColegio" data-bs-slide="prev">
+            <span class="carousel-control-prev-icon"></span>
+        </button>
+        <button class="carousel-control-next" type="button" data-bs-target="#carouselColegio" data-bs-slide="next">
+            <span class="carousel-control-next-icon"></span>
+        </button>
+    </div>
+</section>
+
+<!-- TESTIMONIO DE PADRE -->
+<section class="parent-testimony">
+    <div class="testimony-wrapper">
+
+        <div class="testimony-text" data-aos="fade-right">
+            <h2>La experiencia de formar futuros universitarios</h2>
+
+            <p>
+                Como padres, elegir un colegio preuniversitario fue una de las decisiones
+                más importantes para nuestra familia. Desde el primer año, notamos cómo
+                el enfoque académico riguroso y la disciplina constante ayudaron a nuestro
+                hijo a desarrollar hábitos de estudio sólidos y pensamiento crítico.
+            </p>
+
+            <p>
+                El acompañamiento personalizado, la exigencia académica y la preparación
+                enfocada en universidades de alto nivel marcaron una diferencia real.
+                No solo se preparó para rendir exámenes exigentes, sino para enfrentar
+                la presión y confiar en sus capacidades.
+            </p>
+
+            <p>
+                Hoy, verlo ingresar a una de las universidades más prestigiosas del país
+                confirma que la formación recibida fue clave.
+            </p>
+
+            <span class="testimony-author">
+                — Padre de familia, promoción ingresante
+            </span>
+        </div>
+
+        <div class="testimony-image" data-aos="fade-left">
+            <img src="~/img/padre1.jpeg" alt="Padre de familia">
+        </div>
+
+    </div>
+</section>
+
+
+<!-- COLLAGE -->
+<section class="institutional-closing">
+    <h2>Alfred Nobel</h2>
+    <h3>DISCIPLINA Y ESTUDIO</h3>
+
+    <img src="~/img/logo.jpeg"
+         alt="Logo del colegio"
+         class="institution-logo" />
+
+    <p class="institution-phrase">
+        Formamos estudiantes con carácter, disciplina y excelencia académica,
+        preparados para conquistar los desafíos de las mejores universidades del país.
+    </p>
+</section>
+
+
+<!-- COLLAGE -->
+<section class="image-collage">
+    <div class="collage-grid">
+        <img src="~/img/collage1.jpeg">
+        <img src="~/img/collage2.jpeg">
+        <img src="~/img/collage3.jpeg">
+        <img src="~/img/collage4.jpeg">
+    </div>
+</section>
+
+
+<!-- CARDS -->
+<section class="levels-section">
+    <h2 class="levels-title"> INSTITUCIÓN EDUCATIVA PRIVADA ALFRED NOBEL </h2>
+
+
+    <div class="levels-grid">
+
+        <article class="level-card" data-aos="fade-up">
+            <div class="level-content">
+                <h3>EDUCACIÓN<br>INICIAL</h3>
+                <p>
+                    Trabajamos con proyectos pedagógicos
+                    basados en los intereses de los niños.
+                </p>
+                <a href="#" class="level-link">LEER MÁS →</a>
+            </div>
+            <img src="~/img/inicial.jpeg" alt="Educación Inicial">
+        </article>
+
+        <article class="level-card" data-aos="fade-up" data-aos-delay="150">
+            <div class="level-content">
+                <h3>EDUCACIÓN<br>PRIMARIA</h3>
+                <p>
+                    Buscamos que nuestros estudiantes
+                    sean los actores de su propio aprendizaje.
+                </p>
+                <a href="#" class="level-link">LEER MÁS →</a>
+            </div>
+            <img src="~/img/primaria.jpeg" alt="Educación Primaria">
+        </article>
+
+        <article class="level-card" data-aos="fade-up" data-aos-delay="300">
+            <div class="level-content">
+                <h3>EDUCACIÓN<br>SECUNDARIA</h3>
+                <p>
+                    Potenciamos las capacidades adquiridas
+                    en los niveles de inicial y primaria.
+                </p>
+                <a href="#" class="level-link">LEER MÁS →</a>
+            </div>
+            <img src="~/img/secundaria.jpeg" alt="Educación Secundaria">
+        </article>
+
+        <article class="level-card" data-aos="fade-up" data-aos-delay="450">
+            <div class="level-content">
+                <h3>FORMACIÓN<br>PRE UNIVERSITARIA</h3>
+                <p>
+                    Tenemos más de 1000 Nobelianos en las mejores universidades del país.
+                </p>
+                <a href="#" class="level-link">LEER MÁS →</a>
+            </div>
+            <img src="~/img/preuniversitaria.jpeg" alt="Bachillerato Internacional">
+        </article>
+
+    </div>
+</section>
+
+
+<!-- LOGRO -->
+<section class="logro-section" data-aos="fade-up">
+
+    <div class="logro-wrapper">
+
+        <div class="logro-imagen">
+            <img src="~/img/ingreso1.jpeg" alt="Alumno ingresante">
+        </div>
+
+        <div class="logro-texto">
+            <h3>Orgullo Nobel</h3>
+            <p>
+                “Desde los primeros años en la IEP Alfred Nobel aprendí que la constancia
+                y la disciplina marcan la diferencia. El acompañamiento de mis docentes,
+                las asesorías personalizadas y la exigencia académica fueron claves en
+                mi preparación.”
+            </p>
+            <p>
+                “Gracias al enfoque académico del colegio y al apoyo constante,
+                logré ingresar en <strong>primera opción a la Universidad Nacional de Ingeniería (UNI)</strong>,
+                alcanzando una meta que parecía lejana al inicio.”
+            </p>
+            <p>
+                Hoy puedo decir con orgullo que la formación recibida no solo me preparó
+                académicamente, sino también me dio la confianza necesaria para enfrentar
+                nuevos retos.
+            </p>
+        </div>
+
+    </div>
+</section>
+
+<script src="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.js"></script>
+<script>
+    AOS.init({
+        duration: 800,
+        once: true,
+        easing: 'ease-in-out'
+    });
+</script>
+
+

@@ -1,0 +1,131 @@
+﻿/* RESET BÁSICO */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* COLORES INSTITUCIONALES */
+:root {
+    --azul: #0b2a4a;
+    --gris-claro: #e6e9ee;
+    --gris-texto: #555;
+}
+
+/* BODY */
+body {
+    font-family: 'Inter', sans-serif;
+    background-color: #ffffff;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.login-logo {
+    text-align: center;
+    margin-bottom: 25px;
+}
+
+    .login-logo img {
+        width: 70px; 
+        height: auto;
+    }
+
+
+/* CONTENEDOR */
+.login-container {
+    width: 100%;
+    max-width: 420px;
+    text-align: center;
+    padding: 40px 30px;
+}
+
+/* HEADER */
+.login-header h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: 2.2rem;
+    color: var(--azul);
+    margin-bottom: 6px;
+}
+
+.login-header p {
+    font-size: 0.75rem;
+    letter-spacing: 1px;
+    color: var(--gris-texto);
+}
+
+.login-header span {
+    margin-left: 6px;
+}
+
+/* FORM */
+.login-box {
+    margin-top: 40px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    text-align: left;
+}
+
+    .login-box label {
+        font-size: 0.8rem;
+        color: var(--gris-texto);
+    }
+
+    .login-box input {
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 3px;
+        font-size: 0.9rem;
+    }
+
+        .login-box input:focus {
+            outline: none;
+            border-color: var(--azul);
+        }
+
+    /* BOTÓN */
+    .login-box button {
+        margin-top: 20px;
+        padding: 12px;
+        background-color: var(--azul);
+        color: #fff;
+        border: none;
+        font-size: 0.9rem;
+        letter-spacing: 1px;
+        cursor: pointer;
+    }
+
+        .login-box button:hover {
+            opacity: 0.9;
+        }
+
+/* LINK */
+.forgot-password {
+    margin-top: 12px;
+    font-size: 0.8rem;
+    color: var(--azul);
+    text-align: center;
+    text-decoration: none;
+}
+
+/* FOOTER */
+.login-footer {
+    margin-top: 50px;
+    font-size: 0.75rem;
+    color: #777;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    align-items: center;
+}
+
+.footer-social span {
+    margin: 0 6px;
+}
+
+.footer-legal a {
+    color: #777;
+    text-decoration: none;
+}
+

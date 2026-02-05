@@ -1,0 +1,136 @@
+﻿
+@{
+    ViewData["Title"] = "Landing_Layout";
+}
+
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8" />
+    <title>@ViewData["Title"] - IEP Alfred Nobel</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600&display=swap" rel="stylesheet">
+    <link href="https://unpkg.com/aos@2.3.4/dist/aos.css" rel="stylesheet">
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+
+</head>
+@RenderSection("Scripts", required: false)
+
+<body>
+    
+
+    <!-- NAVBAR SUPERIOR -->
+    <nav class="navbar navbar-light bg-light">
+        <div class="container position-relative">
+            <div class="school-brand">
+                <h1>Alfred Nobel</h1>
+                <img src="~/img/logo.jpeg" alt="Logo Alfred Nobel">
+            </div>
+            <div class="position-absolute end-0 d-flex gap-4 align-items-center top-links">
+                <a asp-controller="Matricula" asp-action="SolicitarAdmision" class="top-link highlight">
+                    Matrícula
+                </a>
+
+                <a href="/Auth/Login" class="top-link">
+                    Intranet
+                </a>
+            </div>
+
+        </div>
+    </nav>
+
+    <!-- SEGUNDO NAVBAR -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#menu">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse justify-content-center" id="menu">
+                <ul class="navbar-nav gap-4">
+                    <li class="nav-item"><a class="nav-link" href="#">Noticias</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#">Exalumnos</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#">Nosotros</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#">Contacto</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#">Visita guiada</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- CONTENIDO -->
+    <main>
+        @RenderBody()
+    </main>
+
+    <footer class="footer-modern">
+
+        <div class="footer-container">
+
+            <!-- Marca -->
+            <div class="footer-brand">
+                <img src="~/img/logo.jpeg" alt="Alfred Nobel">
+                <h3>IEP Alfred Nobel</h3>
+                <p>Colegio Preuniversitario</p>
+            </div>
+
+            <!-- Contacto -->
+            <div class="footer-block">
+                <h4>Contacto</h4>
+                <ul>
+                    <li>📍 Lima, Perú</li>
+                    <li>📞 (+51) 995 565 346</li>
+                    <li>✉ contacto@alfrednobel.edu.pe</li>
+                </ul>
+            </div>
+
+            <!-- Enlaces -->
+            <div class="footer-block">
+                <h4>Institucional</h4>
+                <ul>
+                    <li><a href="#">Nosotros</a></li>
+                    <li><a href="#">Admisión</a></li>
+                    <li><a href="#">Exalumnos</a></li>
+                    <li><a href="#">Libro de reclamaciones</a></li>
+                </ul>
+            </div>
+
+            <!-- Acciones -->
+            <div class="footer-block">
+                <h4>Accesos</h4>
+                <ul>
+                    <li><a href="/Matricula">Matrícula</a></li>
+                    <li><a href="/Auth/Login">Intranet</a></li>
+                    <li><a href="#">Visita guiada</a></li>
+                </ul>
+            </div>
+
+        </div>
+
+        <div class="footer-bottom-modern">
+            © 2026 IEP Alfred Nobel · Formación académica con disciplina y excelencia
+        </div>
+
+    </footer>
+
+
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://unpkg.com/aos@2.3.4/dist/aos.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="js/matricula.js"></script>
+    <script>
+        AOS.init({
+            duration: 900,
+            once: true,
+            easing: 'ease-out-cubic'
+        });
+    </script>
+
+</body>
+</html>

@@ -1,0 +1,95 @@
+﻿@section Scripts {
+    <script src="~/js/matricula.js"></script>
+}
+
+<div class="admission-wrapper">
+<section class="admission-section" data-aos="fade-up">
+
+    <div class="admission-card">
+        <h2>Solicitud de Admisión</h2>
+        <p class="admission-subtitle">
+            Complete el formulario y nos comunicaremos con usted.
+        </p>
+
+        
+    <form id="admisionForm" >
+            <div class="row g-3">
+
+                <div class="col-md-6">
+                    <label>DNI del Estudiante</label>
+                    <input type="text" class="form-control"
+                           id="dni"
+                           maxlength="8"
+                           required
+                           inputmode="numeric"
+                           pattern="[0-9]{8}">
+                </div>
+
+                <div class="col-md-6">
+                    <label>Fecha de Nacimiento</label>
+                    <input type="text"
+                           class="form-control"
+                           id="fechaNacimiento"
+                           required>
+                </div>
+
+                <div class="col-md-6">
+                    <label>Nombres</label>
+                    <input type="text" class="form-control" id="nombres" required>
+                </div>
+
+                <div class="col-md-6">
+                    <label>Apellidos</label>
+                    <input type="text" class="form-control" id="apellidos" required>
+                </div>
+
+                <div class="col-md-6">
+                    <label>Teléfono del Apoderado</label>
+                    <input type="text"
+                           class="form-control"
+                           id="telefono"
+                           maxlength="9"
+                           required
+                           inputmode="numeric"
+                           pattern="[0-9]{9}">
+                </div>
+
+                <div class="col-md-6">
+                    <label>Correo Electrónico</label>
+                    <input type="email" class="form-control" id="correo" required>
+                </div>
+
+                    <div class="form-group">
+                        <label for="nivel">Nivel al que postula</label>
+                        <select id="nivel" class="form-control" required>
+                            <option value="">Seleccione un nivel</option>
+                            <option value="Inicial">Nivel Inicial</option>
+                            <option value="Primaria">Nivel Primaria</option>
+                            <option value="Secundaria">Nivel Secundaria</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="grado">Grado al que postula</label>
+                        <select id="grado" class="form-control" required>
+                            <option value="">Seleccione un grado</option>
+                        </select>
+                    </div>
+
+
+            </div>
+
+            <div class="alert alert-danger d-none mt-4" id="alertError"></div>
+            <div class="alert alert-success d-none mt-4" id="alertSuccess"></div>
+
+            <button type="submit" class="btn btn-admission mt-4">
+                Enviar solicitud
+            </button>
+
+        </form>
+            
+        
+    </div>
+
+</section>
+</div>

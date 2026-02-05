@@ -1,0 +1,64 @@
+﻿
+@{
+    ViewData["Title"] = "Login";
+}
+
+@{
+    Layout = null;
+}
+
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Login | Alfred Nobel</title>
+    <link rel="stylesheet" href="/css/login.css">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+</head>
+<body>
+
+    <div class="login-container">
+
+        <!-- ENCABEZADO -->
+        <div class="login-logo">
+            <img src="~/img/logo.jpeg" alt="Logo Alfred Nobel">
+        </div>
+
+        <header class="login-header">
+            <h1>Alfred Nobel</h1>
+            <p>
+                COLEGIO PREUNIVERSITARIO
+                <span>DESDE 1998</span>
+            </p>
+        </header>
+
+        <!-- FORMULARIO -->
+        <main class="login-box">
+            <label>Usuario</label>
+            <input type="text" placeholder="Ingrese su usuario">
+
+            <label>Contraseña</label>
+            <input type="password" placeholder="Ingrese su contraseña">
+
+            <button>INGRESAR</button>
+
+        </main>
+
+        <!-- PIE INFERIOR -->
+        <footer class="login-footer">
+       
+            <div class="footer-legal">
+                <a href="#">Políticas de privacidad</a>
+                ·
+                <a href="#">Términos y Condiciones</a>
+            </div>
+
+        </footer>
+
+    </div>
+
+</body>
+</html>
+
+
