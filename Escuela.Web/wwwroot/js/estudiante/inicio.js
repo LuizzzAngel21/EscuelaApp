@@ -1,4 +1,6 @@
-﻿document.addEventListener("DOMContentLoaded", () => {
+﻿let todosLosComunicados = []; 
+
+document.addEventListener("DOMContentLoaded", () => {
     mostrarFechaHoy();
     cargarHorarioHoy();
     cargarEstadoFinanciero();
@@ -171,11 +173,9 @@ async function cargarEstadoFinanciero() {
     }
 }
 
-/* Comunicados */
 async function cargarComunicados() {
     const container = document.getElementById("lista-comunicados");
     const token = localStorage.getItem("tokenEscuela");
-
     if (!container) return;
 
     try {
@@ -184,55 +184,96 @@ async function cargarComunicados() {
         });
 
         if (response.ok) {
-            const data = await response.json();
-            const ultimos = data.slice(0, 3);
+            todosLosComunicados = await response.json();
+
+            const ultimos = todosLosComunicados.slice(0, 3);
 
             if (ultimos.length === 0) {
-                container.innerHTML = `
-                    <div class="text-center py-3">
-                        <p class="text-muted small m-0">No hay comunicados recientes.</p>
-                    </div>`;
+                container.innerHTML = '<p class="text-center text-muted py-4 small">No hay avisos recientes.</p>';
                 return;
             }
 
             let html = "";
-            ultimos.forEach(c => {
-                const tituloSafe = encodeURIComponent(c.titulo);
-                const contenidoSafe = encodeURIComponent(c.contenido);
-                const autorSafe = encodeURIComponent(c.autor || 'Dirección');
-                const fechaSafe = encodeURIComponent((c.fecha || "").split(' ')[0]);
-
+            ultimos.forEach((c, index) => {
                 html += `
                 <div class="list-group-item px-3 py-3 border-0 border-bottom comunicado-card cursor-pointer"
-                     onclick="verDetalleComunicado('${tituloSafe}', '${contenidoSafe}', '${autorSafe}', '${fechaSafe}')">
+                     onclick="verDetalleComunicado(${index})">
                     <div class="d-flex justify-content-between mb-1">
-                        <span class="badge bg-primary bg-opacity-10 text-primary border border-primary border-opacity-10">${c.autor || 'Dirección'}</span>
-                        <small class="text-muted">${(c.fecha || "").split(' ')[0]}</small>
+                        <span class="badge bg-primary bg-opacity-10 text-primary border border-primary border-opacity-10">${c.autor}</span>
+                        <small class="text-muted">${c.fecha.split(' ')[0]}</small>
                     </div>
                     <h6 class="mb-1 text-dark fw-semibold text-truncate">${c.titulo}</h6>
                     <p class="mb-0 text-muted small text-truncate">${c.contenido}</p>
                 </div>`;
             });
-
             container.innerHTML = html;
         }
     } catch (error) {
-        console.error(error);
+        console.error("Error al cargar comunicados:", error);
     }
 }
 
-/* Modal de Comunicados */
-function verDetalleComunicado(tituloEncoded, contenidoEncoded, autorEncoded, fechaEncoded) {
-    document.getElementById("modalTitulo").innerText = decodeURIComponent(tituloEncoded);
-    document.getElementById("modalContenido").innerText = decodeURIComponent(contenidoEncoded);
-    document.getElementById("modalAutor").innerText = decodeURIComponent(autorEncoded);
-    document.getElementById("modalFecha").innerText = decodeURIComponent(fechaEncoded);
+function verDetalleComunicado(index) {
+    const c = todosLosComunicados[index];
+    if (!c) return;
+
+    document.getElementById("modalTitulo").innerText = c.titulo;
+    document.getElementById("modalContenido").innerText = c.contenido;
+    document.getElementById("modalAutor").innerText = c.autor;
+    document.getElementById("modalFecha").innerText = c.fecha;
 
     const myModal = new bootstrap.Modal(document.getElementById('modalComunicado'));
     myModal.show();
 }
 
-/* Utilidades */
+// funciones del modal
+
+function abrirHistorialComunicados() {
+    renderizarListaHistorial(todosLosComunicados);
+    const myModal = new bootstrap.Modal(document.getElementById('modalHistorialComunicados'));
+    myModal.show();
+}
+
+function renderizarListaHistorial(lista) {
+    const container = document.getElementById("contenedor-historial-comunicados");
+    if (!container) return;
+
+    if (lista.length === 0) {
+        container.innerHTML = '<div class="text-center p-5 text-muted">No se encontraron comunicados con los criterios de búsqueda.</div>';
+        return;
+    }
+
+    container.innerHTML = lista.map(c => `
+        <div class="card mb-3 border-0 shadow-sm">
+            <div class="card-body">
+                <div class="d-flex justify-content-between border-bottom pb-2 mb-2">
+                    <span class="fw-bold text-primary"><i class="fa-solid fa-user-pen me-2"></i>${c.autor}</span>
+                    <span class="badge bg-light text-dark">${c.fecha}</span>
+                </div>
+                <h6 class="fw-bold text-dark">${c.titulo}</h6>
+                <p class="text-muted small mb-0" style="white-space: pre-wrap;">${c.contenido}</p>
+            </div>
+        </div>
+    `).join('');
+}
+
+function filtrarComunicadosPorFecha() {
+    const fechaBusqueda = document.getElementById("filtroFechaComunicado").value;
+    if (!fechaBusqueda) return;
+
+    const filtrados = todosLosComunicados.filter(c => {
+        const [dia, mes, anio] = c.fecha.split(' ')[0].split('/');
+        const fechaFormateada = `${anio}-${mes}-${dia}`;
+        return fechaFormateada === fechaBusqueda;
+    });
+
+    renderizarListaHistorial(filtrados);
+}
+
+function limpiarFiltroComunicados() {
+    document.getElementById("filtroFechaComunicado").value = "";
+    renderizarListaHistorial(todosLosComunicados);
+}
 function normalizarTexto(texto) {
     return texto.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
 }

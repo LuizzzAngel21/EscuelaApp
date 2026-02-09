@@ -1,0 +1,90 @@
+﻿@{
+    ViewData["Title"] = "Bienestar Estudiantil";
+    Layout = "~/Views/Shared/_LayoutEstudiante.cshtml";
+}
+
+<div class="container-fluid py-4">
+    <div class="card bg-primary text-white border-0 shadow-lg mb-4">
+        <div class="card-body p-4 d-flex align-items-center">
+            <div class="me-4 d-none d-md-block">
+                <i class="fa-solid fa-hand-holding-heart fa-4x opacity-50"></i>
+            </div>
+            <div>
+                <h2 class="fw-bold mb-1">Centro de Apoyo y Bienestar</h2>
+                <p class="mb-0 opacity-75">Tu salud emocional y académica es nuestra prioridad. Agenda citas y revisa tus recomendaciones.</p>
+            </div>
+        </div>
+    </div>
+
+    <ul class="nav nav-tabs mb-4 border-0" id="bienestarTabs" role="tablist">
+        <li class="nav-item">
+            <button class="nav-link active fw-bold px-4" id="citas-tab" data-bs-toggle="tab" data-bs-target="#tab-citas" type="button">
+                <i class="fa-solid fa-calendar-check me-2"></i>Gestión de Citas
+            </button>
+        </li>
+        <li class="nav-item">
+            <button class="nav-link fw-bold px-4" id="expediente-tab" data-bs-toggle="tab" data-bs-target="#tab-expediente" type="button">
+                <i class="fa-solid fa-clipboard-list me-2"></i>Mi Expediente
+            </button>
+        </li>
+    </ul>
+
+    <div class="tab-content" id="bienestarContent">
+        <div class="tab-pane fade show active" id="tab-citas">
+            <div class="row g-4">
+                <div class="col-lg-4">
+                    <div class="card border-0 shadow-sm">
+                        <div class="card-header bg-white py-3">
+                            <h6 class="fw-bold mb-0 text-primary">Nueva Solicitud</h6>
+                        </div>
+                        <div class="card-body">
+                            <form id="formCita">
+                                <div class="mb-3">
+                                    <label class="form-label small fw-bold">Especialista</label>
+                                    <select id="slcDestinatario" class="form-select" required>
+                                        <option value="">Cargando especialistas...</option>
+                                    </select>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label small fw-bold">Motivo</label>
+                                    <textarea id="txtMotivo" class="form-control" rows="3" maxlength="250" required></textarea>
+                                </div>
+                                <div class="row g-2 mb-3">
+                                    <div class="col-7">
+                                        <label class="form-label small fw-bold">Fecha</label>
+                                        <input type="date" id="txtFecha" class="form-control" required>
+                                    </div>
+                                    <div class="col-5">
+                                        <label class="form-label small fw-bold">Hora</label>
+                                        <input type="time" id="txtHora" class="form-control" min="08:00" max="16:00" required>
+                                    </div>
+                                </div>
+                                <div class="form-check form-switch mb-4">
+                                    <input class="form-check-input" type="checkbox" id="chkVirtual">
+                                    <label class="form-check-label small" for="chkVirtual">¿Deseas que sea Virtual?</label>
+                                </div>
+                                <button type="submit" class="btn btn-primary w-100 rounded-pill shadow-sm">
+                                    <i class="fa-solid fa-paper-plane me-2"></i>Enviar Solicitud
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-8">
+                    <div id="listaCitas" class="row g-3">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="tab-pane fade" id="tab-expediente">
+            <div id="contenedorExpedientes" class="row justify-content-center">
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/js/estudiante/bienestar.js"></script>
+}

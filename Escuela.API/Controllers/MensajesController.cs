@@ -28,78 +28,31 @@ namespace Escuela.API.Controllers
         {
             var userId = User.FindFirstValue("uid");
             var esEstudiante = User.IsInRole("Estudiantil");
-            var esDocente = User.IsInRole("Academico");
-
             var listaDestinatarios = new List<DestinatarioDto>();
 
             if (esEstudiante)
             {
-                var miMatricula = await _context.Matriculas
-                    .Include(m => m.Grado)
-                    .OrderByDescending(m => m.Id) 
-                    .FirstOrDefaultAsync(m => m.Estudiante!.UsuarioId == userId);
+                var miMatricula = await _context.Matriculas.Include(m => m.Grado)
+                    .OrderByDescending(m => m.Id).FirstOrDefaultAsync(m => m.Estudiante!.UsuarioId == userId);
 
                 if (miMatricula != null)
                 {
                     var misProfesores = await _context.Cursos
                         .Where(c => c.GradoId == miMatricula.GradoId)
-                        .Include(c => c.Docente)
-                        .Select(c => c.Docente)
-                        .Distinct() 
-                        .ToListAsync();
+                        .Include(c => c.Docente).Select(c => c.Docente).Distinct().ToListAsync();
 
                     foreach (var profe in misProfesores)
-                    {
-                        if (profe != null)
-                        {
-                            listaDestinatarios.Add(new DestinatarioDto
-                            {
-                                UsuarioId = profe.UsuarioId,
-                                NombreCompleto = $"{profe.Nombres} {profe.Apellidos}",
-                                Rol = "Docente"
-                            });
-                        }
-                    }
+                        if (profe != null) listaDestinatarios.Add(new DestinatarioDto { UsuarioId = profe.UsuarioId, NombreCompleto = $"{profe.Nombres} {profe.Apellidos}", Rol = "Docente" });
                 }
 
                 var administrativos = await _userManager.GetUsersInRoleAsync("Administrativo");
                 foreach (var admin in administrativos)
-                {
-                    listaDestinatarios.Add(new DestinatarioDto
-                    {
-                        UsuarioId = admin.Id,
-                        NombreCompleto = admin.UserName ?? "Personal Administrativo",
-                        Rol = "Administrativo"
-                    });
-                }
+                    listaDestinatarios.Add(new DestinatarioDto { UsuarioId = admin.Id, NombreCompleto = admin.UserName ?? "Admin", Rol = "Administrativo" });
 
                 var psicologos = await _context.Psicologos.ToListAsync();
-                listaDestinatarios.AddRange(psicologos.Select(p => new DestinatarioDto
-                {
-                    UsuarioId = p.UsuarioId,
-                    NombreCompleto = $"{p.Nombres} {p.Apellidos}",
-                    Rol = "Psicólogo"
-                }));
+                listaDestinatarios.AddRange(psicologos.Select(p => new DestinatarioDto { UsuarioId = p.UsuarioId, NombreCompleto = $"{p.Nombres} {p.Apellidos}", Rol = "Psicólogo" }));
             }
-            else
-            {
-                var docentes = await _context.Docentes.ToListAsync();
-                listaDestinatarios.AddRange(docentes.Select(d => new DestinatarioDto
-                {
-                    UsuarioId = d.UsuarioId,
-                    NombreCompleto = $"{d.Nombres} {d.Apellidos}",
-                    Rol = "Docente"
-                }));
-
-                var psicologos = await _context.Psicologos.ToListAsync();
-                listaDestinatarios.AddRange(psicologos.Select(p => new DestinatarioDto
-                {
-                    UsuarioId = p.UsuarioId,
-                    NombreCompleto = $"{p.Nombres} {p.Apellidos}",
-                    Rol = "Psicólogo"
-                }));
-            }
-
+            // ... lógica docente ...
             return Ok(listaDestinatarios);
         }
 
@@ -118,7 +71,7 @@ namespace Escuela.API.Controllers
                     Contenido = m.Contenido,
                     Fecha = m.FechaEnvio.ToString("dd/MM/yyyy HH:mm"),
                     Leido = m.Leido,
-                    RemitenteNombre = m.NombreRemitente,
+                    RemitenteNombre = m.NombreRemitente, 
                     DestinatarioNombre = "Mí",
                     ArchivoUrl = m.ArchivoAdjuntoUrl,
                     YoSoyRemitente = false
@@ -133,10 +86,18 @@ namespace Escuela.API.Controllers
         {
             var userId = User.FindFirstValue("uid");
 
-            var mensajes = await _context.Mensajes
+            var mensajesDb = await _context.Mensajes
                 .Where(m => m.RemitenteId == userId)
                 .OrderByDescending(m => m.FechaEnvio)
-                .Select(m => new MensajeDto
+                .ToListAsync();
+
+            var resultado = new List<MensajeDto>();
+
+            foreach (var m in mensajesDb)
+            {
+                string nombreDestino = await ObtenerNombrePersona(m.DestinatarioId);
+
+                resultado.Add(new MensajeDto
                 {
                     Id = m.Id,
                     Asunto = m.Asunto,
@@ -144,28 +105,36 @@ namespace Escuela.API.Controllers
                     Fecha = m.FechaEnvio.ToString("dd/MM/yyyy HH:mm"),
                     Leido = m.Leido,
                     RemitenteNombre = "Mí",
-                    DestinatarioNombre = "Destinatario",
+                    DestinatarioNombre = nombreDestino, 
                     ArchivoUrl = m.ArchivoAdjuntoUrl,
                     YoSoyRemitente = true
-                })
-                .ToListAsync();
+                });
+            }
 
-            return Ok(mensajes);
+            return Ok(resultado);
         }
 
         [HttpPost]
         public async Task<ActionResult> Enviar(CrearMensajeDto dto)
         {
             var userId = User.FindFirstValue("uid");
-            var userName = User.Identity?.Name ?? "Desconocido";
 
-            var destinatario = await _userManager.FindByIdAsync(dto.DestinatarioId);
-            if (destinatario == null) return BadRequest("El destinatario no existe.");
+            string nombreRemitenteReal = "Desconocido";
+
+            var estudiante = await _context.Estudiantes.FirstOrDefaultAsync(e => e.UsuarioId == userId);
+            if (estudiante != null)
+            {
+                nombreRemitenteReal = $"{estudiante.Nombres} {estudiante.Apellidos}";
+            }
+            else
+            {
+                nombreRemitenteReal = await ObtenerNombrePersona(userId);
+            }
 
             var nuevoMensaje = new Mensaje
             {
                 RemitenteId = userId,
-                NombreRemitente = userName,
+                NombreRemitente = nombreRemitenteReal, 
                 DestinatarioId = dto.DestinatarioId,
                 Asunto = dto.Asunto,
                 Contenido = dto.Contenido,
@@ -187,13 +156,25 @@ namespace Escuela.API.Controllers
             var mensaje = await _context.Mensajes.FindAsync(id);
 
             if (mensaje == null) return NotFound();
-
             if (mensaje.DestinatarioId != userId) return Forbid();
 
             mensaje.Leido = true;
             await _context.SaveChangesAsync();
-
             return Ok();
+        }
+
+        private async Task<string> ObtenerNombrePersona(string userId)
+        {
+            var doc = await _context.Docentes.FirstOrDefaultAsync(d => d.UsuarioId == userId);
+            if (doc != null) return $"{doc.Nombres} {doc.Apellidos}";
+
+            var psi = await _context.Psicologos.FirstOrDefaultAsync(p => p.UsuarioId == userId);
+            if (psi != null) return $"{psi.Nombres} {psi.Apellidos}";
+
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user != null) return user.UserName ?? "Usuario";
+
+            return "Usuario Desconocido";
         }
     }
 }

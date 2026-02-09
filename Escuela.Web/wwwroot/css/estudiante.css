@@ -1,4 +1,4 @@
-﻿/* Globales y de config base */
+﻿/* CONFIG */
 :root {
     --color-primary: #0b2a4a;
     --color-primary-light: #143d66;
@@ -12,7 +12,6 @@
     --transition-speed: 0.3s;
 }
 
-/* Reset básico */
 * {
     box-sizing: border-box;
 }
@@ -24,7 +23,7 @@ body {
     color: var(--color-primary);
 }
 
-/* Layout del estudiante */
+/* LAYOUT */
 .app-container {
     display: flex;
     height: 100vh;
@@ -44,7 +43,7 @@ body {
     overflow-y: auto;
 }
 
-/* SideBar del layout */
+/* SIDEBAR */
 .sidebar {
     width: var(--sidebar-width);
     background-color: var(--color-primary);
@@ -57,7 +56,6 @@ body {
     overflow: hidden;
 }
 
-    /* Sidebar colapsado */
     .sidebar.collapsed {
         width: var(--sidebar-collapsed-width);
     }
@@ -68,7 +66,17 @@ body {
             display: none;
         }
 
-/* Cabecera del sidebar */
+/* SIDEBAR */
+.sidebar-collapsed-init .sidebar {
+    width: var(--sidebar-collapsed-width);
+}
+
+    .sidebar-collapsed-init .sidebar .link-text,
+    .sidebar-collapsed-init .sidebar .sidebar-brand-text,
+    .sidebar-collapsed-init .sidebar .menu-header {
+        display: none;
+    }
+
 .sidebar-header {
     height: var(--topbar-height);
     display: flex;
@@ -78,8 +86,6 @@ body {
     border-bottom: 1px solid rgba(255,255,255,0.1);
 }
 
-
-/* logo del sidebar */
 .sidebar-brand {
     font-size: 1.2rem;
     font-weight: 600;
@@ -87,7 +93,6 @@ body {
     align-items: center;
 }
 
-/*menú de navegación del sidebar */
 .sidebar-menu {
     list-style: none;
     padding: 20px 0;
@@ -112,14 +117,13 @@ body {
             border-left-color: var(--color-secondary);
         }
 
-        /* Íconos del menú lateral */
         .sidebar-menu li a i {
             width: 30px;
             margin-right: 10px;
             text-align: center;
         }
 
-/* Topbar */
+/* TOPBAR */
 .topbar {
     height: var(--topbar-height);
     background-color: var(--white);
@@ -130,7 +134,14 @@ body {
     border-bottom: 1px solid #E5E7EB;
 }
 
-/* Perfil del usuario en el topbar */
+    .topbar .text-end {
+        margin-right: 6px;
+    }
+
+    .topbar .d-flex.align-items-center.cursor-pointer {
+        gap: 14px !important;
+    }
+
 .user-profile-wrapper {
     display: flex;
     align-items: center;
@@ -138,14 +149,6 @@ body {
     padding-left: 15px;
 }
 
-.user-info-details {
-    display: flex;
-    flex-direction: column;
-    text-align: right;
-    line-height: 1.2;
-}
-
-/* dropdown para el perfil del usuario */
 .user-dropdown-menu {
     position: absolute;
     top: 75px;
@@ -159,12 +162,10 @@ body {
     z-index: 1000;
 }
 
-    /* Dropdown visible */
     .user-dropdown-menu.show {
         display: block;
     }
 
-/* Cabecera del dropdown */
 .dropdown-header {
     padding: 15px 20px;
     background-color: #F9FAFB;
@@ -172,7 +173,6 @@ body {
     border-radius: 8px 8px 0 0;
 }
 
-/* Opciones del dropdown */
 .user-dropdown-menu a {
     display: flex;
     align-items: center;
@@ -187,7 +187,13 @@ body {
         background-color: var(--color-bg);
     }
 
-/* Inicio (primero modulo - dashboard) */
+    .user-dropdown-menu a i {
+        margin-right: 10px;
+        width: 18px;
+        text-align: center;
+    }
+
+/* MODULO DE INICIO */
 .timeline-container {
     position: relative;
     padding-left: 20px;
@@ -199,6 +205,21 @@ body {
     position: relative;
     margin-bottom: 30px;
 }
+
+    .timeline-item h6, .timeline-item h5, .timeline-item a {
+        color: var(--color-primary) !important;
+        font-weight: 700 !important;
+        text-decoration: none;
+    }
+
+    .timeline-item p, .timeline-item small, .timeline-item .text-muted {
+        color: #4b5563 !important;
+    }
+
+    .timeline-item .card {
+        border: 1px solid #e5e7eb !important;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    }
 
 .timeline-dot {
     position: absolute;
@@ -216,7 +237,7 @@ body {
     box-shadow: 0 0 0 4px rgba(11, 42, 74, 0.2);
 }
 
-/* Cursos - Aula Virtual */
+/* MODULO DE HORARIOS Y CURSOS */
 .curso-card {
     transition: transform 0.25s ease, box-shadow 0.25s ease;
     border-radius: 12px !important;
@@ -239,58 +260,6 @@ body {
         border-bottom: 3px solid var(--color-primary) !important;
         border: none;
     }
-
-
-}
-
-/* generales */
-.text-primary {
-    color: var(--color-primary) !important;
-}
-
-.bg-primary {
-    background-color: var(--color-primary) !important;
-}
-
-.rounded-lg {
-    border-radius: 12px;
-}
-
-.shadow-elegant {
-    box-shadow: 0 10px 30px rgba(0,0,0,0.08);
-}
-
-/* estado inicial del sidebar */
-.sidebar-collapsed-init .sidebar {
-    width: var(--sidebar-collapsed-width);
-}
-
-    .sidebar-collapsed-init .sidebar .link-text,
-    .sidebar-collapsed-init .sidebar .sidebar-brand-text,
-    .sidebar-collapsed-init .sidebar .menu-header {
-        display: none;
-    }
-
-/* ajustes de topbar */
-.topbar .text-end {
-    margin-right: 6px;
-}
-
-.topbar .d-flex.align-items-center.cursor-pointer {
-    gap: 14px !important;
-}
-
-/* ajuste de ícono */
-
-.user-dropdown-menu a i {
-    margin-right: 10px;
-    width: 18px;
-    text-align: center;
-}
-
-
-
-/* style para el modulo de horario y asistencia */
 
 .hover-card {
     transition: transform 0.2s ease, box-shadow 0.2s ease;
@@ -320,4 +289,203 @@ body {
     font-size: 0.75rem;
     letter-spacing: 1px;
     border-bottom: 2px solid #e9ecef;
+}
+
+/* MODULO DE BIENESTAR */
+.cita-card {
+    transition: transform 0.2s ease;
+    border-left-width: 5px !important;
+}
+
+    .cita-card:hover {
+        transform: translateY(-3px);
+    }
+
+.status-confirmada {
+    border-left-color: #198754 !important;
+}
+
+.status-pendiente {
+    border-left-color: var(--color-primary) !important;
+}
+
+.status-rechazada {
+    border-left-color: var(--color-secondary) !important;
+}
+
+.recomendacion-box {
+    background-color: #f0fdf4;
+    border-radius: 10px;
+    padding: 15px;
+    border-left: 4px solid #16a34a;
+}
+
+/* MODULO DE MENSAJES */
+.mensaje-item {
+    transition: all 0.2s ease;
+    cursor: pointer;
+    border-left: 3px solid transparent;
+}
+
+    .mensaje-item:hover {
+        background-color: #f8f9fa;
+        transform: translateX(5px);
+    }
+
+.mensaje-no-leido {
+    background-color: rgba(11, 42, 74, 0.03);
+    border-left-color: var(--color-primary);
+}
+
+    .mensaje-no-leido .mensaje-asunto {
+        font-weight: 700 !important;
+        color: var(--color-primary);
+    }
+
+.mensaje-leido .mensaje-asunto {
+    font-weight: 500;
+    color: #4b5563;
+}
+
+.avatar-circle {
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+}
+
+.list-group-item.active {
+    background-color: var(--color-primary) !important;
+    border-color: var(--color-primary) !important;
+    font-weight: 600;
+}
+
+/* MÓDULO DE INCIDENCIAS */
+.timeline-conducta {
+    position: relative;
+    padding-left: 2rem;
+    border-left: 3px solid #e5e7eb;
+}
+
+.incidencia-card {
+    position: relative;
+    margin-bottom: 2rem;
+}
+
+.incidencia-marker {
+    position: absolute;
+    left: -2.6rem;
+    top: 15px;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: #fff;
+    border: 4px solid var(--color-primary);
+    z-index: 1;
+}
+
+.nivel-leve {
+    border-color: #0dcaf0 !important;
+}
+
+.nivel-grave {
+    border-color: #ffc107 !important;
+}
+
+.nivel-muy-grave {
+    border-color: #dc3545 !important;
+}
+
+.nivel-merito {
+    border-color: #198754 !important;
+}
+
+/* MÓDULO DE NOTIFICACIONES Y UTILIDADES UI */
+.notification-item {
+    transition: background-color 0.2s ease;
+}
+
+    .notification-item:active, .notification-item:hover {
+        background-color: #f8f9fa;
+        color: inherit;
+    }
+
+.dropdown-menu::-webkit-scrollbar {
+    width: 5px;
+}
+
+.dropdown-menu::-webkit-scrollbar-thumb {
+    background-color: #cbd5e1;
+    border-radius: 10px;
+}
+
+.dropdown-menu {
+    border: 1px solid rgba(0,0,0,0.05) !important;
+}
+
+/* Badges Oscuros (Comunicados, Notas) - Texto Blanco */
+.badge.bg-primary, .badge.bg-secondary, .badge.bg-dark, .badge.bg-danger, .badge.bg-info {
+    color: #ffffff !important;
+}
+
+/* Badge "Disponible" (Aula Virtual) */
+.badge.bg-success-subtle, .badge.text-success, .badge.bg-opacity-10 {
+    background-color: #198754 !important;
+    color: #ffffff !important;
+    opacity: 1 !important;
+}
+
+/* Badge "Sin Notas"  */
+.badge.bg-secondary.bg-opacity-10 {
+    background-color: rgba(108, 117, 125, 0.1) !important;
+    color: #6c757d !important;
+    border: 1px solid rgba(108, 117, 125, 0.2) !important;
+}
+
+/* Badge Blanco (Pagos) */
+.badge.bg-white {
+    background-color: #fff !important;
+    color: #4b5563 !important;
+    border: 1px solid #e5e7eb;
+}
+
+/* Utilidades de Texto y Fondo */
+.text-primary {
+    color: var(--color-primary) !important;
+}
+
+.bg-primary {
+    background-color: var(--color-primary) !important;
+}
+
+.rounded-lg {
+    border-radius: 12px;
+}
+
+.shadow-elegant {
+    box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+}
+
+@keyframes pulse-red {
+    0% {
+        transform: translate(-50%, -50%) scale(1);
+        box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.7);
+    }
+
+    70% {
+        transform: translate(-50%, -50%) scale(1.1);
+        box-shadow: 0 0 0 6px rgba(220, 53, 69, 0);
+    }
+
+    100% {
+        transform: translate(-50%, -50%) scale(1);
+        box-shadow: 0 0 0 0 rgba(220, 53, 69, 0);
+    }
+}
+
+.animate__pulse {
+    animation: pulse-red 2s infinite;
 }

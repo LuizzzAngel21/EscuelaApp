@@ -40,9 +40,10 @@ namespace Escuela.API.Controllers
                 .ToListAsync();
 
             var psicologosIds = expedientes.Select(e => e.PsicologoId).Distinct().ToList();
+
             var psicologos = await _context.Psicologos
-                .Where(p => psicologosIds.Contains(p.UsuarioId))
-                .ToDictionaryAsync(p => p.UsuarioId, p => $"{p.Nombres} {p.Apellidos}");
+                .Where(p => psicologosIds.Contains(p.Id.ToString())) 
+                .ToDictionaryAsync(p => p.Id.ToString(), p => $"{p.Nombres} {p.Apellidos}");
 
             var resultado = new List<ExpedienteDto>();
             bool tienePermisoTotal = (rol == "Psicologo" || rol == "Administrativo");

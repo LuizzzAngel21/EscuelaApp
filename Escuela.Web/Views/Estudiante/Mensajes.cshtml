@@ -1,0 +1,118 @@
+﻿@{
+    ViewData["Title"] = "Mensajería";
+    Layout = "~/Views/Shared/_LayoutEstudiante.cshtml";
+}
+
+<div class="container-fluid py-4">
+    <div class="row g-4">
+        <div class="col-lg-3">
+            <button class="btn btn-primary w-100 rounded-pill mb-4 shadow-sm py-2" onclick="abrirModalRedactar()">
+                <i class="fa-solid fa-pen-to-square me-2"></i>Redactar Nuevo
+            </button>
+
+            <div class="list-group shadow-sm border-0 rounded-3 overflow-hidden">
+                <button class="list-group-item list-group-item-action border-0 py-3 active" id="btn-tab-entrada" onclick="cargarBandeja('entrada')">
+                    <i class="fa-solid fa-inbox me-3"></i>Bandeja de Entrada
+                </button>
+                <button class="list-group-item list-group-item-action border-0 py-3" id="btn-tab-salida" onclick="cargarBandeja('salida')">
+                    <i class="fa-solid fa-paper-plane me-3"></i>Enviados
+                </button>
+            </div>
+        </div>
+
+        <div class="col-lg-9">
+            <div class="card border-0 shadow-sm h-100" style="min-height: 500px;">
+                <div class="card-header bg-white border-bottom py-3 d-flex justify-content-between align-items-center">
+                    <h5 class="fw-bold mb-0 text-primary" id="titulo-bandeja">Bandeja de Entrada</h5>
+                    <button class="btn btn-light btn-sm rounded-circle" onclick="recargarBandejaActual()" title="Actualizar">
+                        <i class="fa-solid fa-rotate-right"></i>
+                    </button>
+                </div>
+                <div class="card-body p-0">
+                    <div id="lista-mensajes" class="list-group list-group-flush">
+                        <div class="text-center py-5 text-muted">
+                            <div class="spinner-border text-primary" role="status"></div>
+                            <p class="mt-2 small">Cargando mensajes...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalLeerMensaje" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg">
+            <div class="modal-header border-0 pb-0">
+                <h5 class="modal-title fw-bold text-dark" id="leerAsunto">Asunto del Mensaje</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="d-flex align-items-center mb-4 border-bottom pb-3">
+                    <div class="avatar-circle me-3 bg-secondary bg-opacity-10 text-secondary">
+                        <i class="fa-solid fa-user"></i>
+                    </div>
+                    <div>
+                        <h6 class="fw-bold mb-0 text-primary" id="leerRemitente">Nombre Remitente</h6>
+                        <small class="text-muted" id="leerFecha">Fecha</small>
+                    </div>
+                </div>
+                <div class="mensaje-contenido text-secondary" id="leerCuerpo" style="white-space: pre-wrap; line-height: 1.6;">
+                </div>
+
+                <div id="areaAdjunto" class="mt-4 pt-3 border-top d-none">
+                    <small class="fw-bold text-muted mb-2 d-block"><i class="fa-solid fa-paperclip me-1"></i>Archivo Adjunto:</small>
+                    <a href="#" target="_blank" id="linkAdjunto" class="btn btn-outline-primary btn-sm rounded-pill">
+                        <i class="fa-solid fa-download me-2"></i>Descargar Recurso
+                    </a>
+                </div>
+            </div>
+            <div class="modal-footer border-0">
+                <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalRedactar" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title fw-bold"><i class="fa-solid fa-envelope me-2"></i>Nuevo Mensaje</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body p-4">
+                <form id="formEnviarMensaje">
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold text-muted">DESTINATARIO</label>
+                        <select class="form-select" id="slcDestinatarios" required>
+                            <option value="">Cargando lista...</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold text-muted">ASUNTO</label>
+                        <input type="text" class="form-control" id="txtAsunto" maxlength="100" required placeholder="Resumen del mensaje...">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold text-muted">CONTENIDO</label>
+                        <textarea class="form-control" id="txtContenido" rows="5" required placeholder="Escribe tu mensaje aquí..."></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold text-muted">ENLACE ADJUNTO (Opcional)</label>
+                        <input type="url" class="form-control" id="txtAdjunto" placeholder="https://...">
+                    </div>
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary rounded-pill py-2 fw-bold">
+                            <i class="fa-solid fa-paper-plane me-2"></i>Enviar Mensaje
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/js/estudiante/mensajes.js"></script>
+}

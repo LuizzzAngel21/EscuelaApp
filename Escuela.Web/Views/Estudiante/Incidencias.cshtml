@@ -1,0 +1,33 @@
+﻿@{
+    ViewData["Title"] = "Historial de Conducta";
+    Layout = "~/Views/Shared/_LayoutEstudiante.cshtml";
+}
+
+<div class="container-fluid py-4">
+    <div class="card bg-white border-0 shadow-sm mb-4">
+        <div class="card-body p-4 d-flex align-items-center justify-content-between">
+            <div>
+                <h4 class="fw-bold mb-1 text-dark">Historial de Conducta</h4>
+                <p class="text-muted mb-0 small">Registro de méritos y deméritos disciplinarios.</p>
+            </div>
+            <div class="text-end">
+                <i class="fa-solid fa-user-check fa-3x text-success opacity-25"></i>
+            </div>
+        </div>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <div id="lista-incidencias" class="timeline-conducta">
+                <div class="text-center py-5">
+                    <div class="spinner-border text-primary" role="status"></div>
+                    <p class="mt-2 text-muted">Cargando historial...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/js/estudiante/incidencias.js"></script>
+}

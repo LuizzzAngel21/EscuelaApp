@@ -20,6 +20,7 @@ namespace Escuela.API.Controllers
             _context = context;
         }
 
+
         [HttpGet]
         public async Task<ActionResult<IEnumerable<CitaDto>>> GetMisCitas()
         {
@@ -94,6 +95,22 @@ namespace Escuela.API.Controllers
             return Ok(new { mensaje = "Solicitud enviada. Espera confirmación." });
         }
 
+        [HttpGet("Especialistas")]
+        [Authorize(Roles = "Estudiantil")]
+        public async Task<ActionResult> GetPsicologosDisponibles()
+        {
+            var psicologos = await _context.Psicologos
+                .Select(p => new
+                {
+                    usuarioId = p.UsuarioId,
+                    nombreCompleto = p.Nombres + " " + p.Apellidos,
+                    cargo = "Psicología"
+                })
+                .ToListAsync();
+
+            return Ok(psicologos);
+        }
+
         [HttpPut("Gestionar/{id}")]
         [Authorize(Roles = "Academico,Psicologo,Administrativo")]
         public async Task<IActionResult> GestionarCita(int id, [FromBody] GestionarCitaDto dto)
@@ -121,6 +138,8 @@ namespace Escuela.API.Controllers
             await _context.SaveChangesAsync();
             return Ok(new { mensaje = "Estado actualizado." });
         }
+
+
 
 
         private async Task<string?> ValidarDisponibilidad(string staffId, DateTime fecha)
@@ -172,6 +191,9 @@ namespace Escuela.API.Controllers
             DayOfWeek.Friday => "Viernes",
             _ => "FinDeSemana"
         };
+
+
+
 
         public enum EstadoCita { Pendiente = 0, Confirmada = 1, Rechazada = 2, Realizada = 3 }
     }

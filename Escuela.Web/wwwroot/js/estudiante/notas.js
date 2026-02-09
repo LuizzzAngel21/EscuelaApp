@@ -7,9 +7,7 @@ async function cargarBoletaGlobal() {
     const lblPromedio = document.getElementById("lblPromedioGeneral");
     const token = localStorage.getItem("tokenEscuela");
 
-    const baseUrl = typeof API_BASE_URL !== "undefined"
-        ? API_BASE_URL
-        : "http://localhost:5000/api";
+    const baseUrl = typeof API_BASE_URL !== "undefined" ? API_BASE_URL : "http://localhost:5000/api";
 
     try {
         const response = await fetch(`${baseUrl}/Notas/BoletaGlobal`, {
@@ -27,8 +25,10 @@ async function cargarBoletaGlobal() {
                             <p class="text-muted">No tienes cursos matriculados en este periodo.</p>
                         </td>
                     </tr>`;
-                lblPromedio.innerText = "0.00";
-                lblPromedio.className = "fw-bold mb-0 display-6 text-primary";
+                if (lblPromedio) {
+                    lblPromedio.innerText = "0.00";
+                    lblPromedio.className = "fw-bold mb-0 display-6 text-secondary";
+                }
                 return;
             }
 
@@ -42,22 +42,32 @@ async function cargarBoletaGlobal() {
                 else if (c.estado === "Reprobado") icon = "fa-circle-xmark";
                 else if (c.estado === "Sin Notas") icon = "fa-clock";
 
+                let colorBadge = "secondary"; 
+
+                if (c.estado === "Aprobado") {
+                    colorBadge = "success"; 
+                } else if (c.estado === "Reprobado") {
+                    colorBadge = "danger"; 
+                } else {
+                    colorBadge = "secondary"; 
+                }
+
                 if (c.avance > 0) {
                     sumaPromedios += c.promedio;
                     cursosConNota++;
                 }
 
-                const colorNotaFinal =
-                    (c.promedio < 11 && c.avance > 0)
-                        ? "text-danger"
-                        : "text-dark";
+                let colorNotaFinal = "text-muted opacity-50";
+                if (c.avance > 0) {
+                    colorNotaFinal = (c.promedio < 11) ? "text-danger" : "text-dark";
+                }
 
                 html += `
                 <tr>
-                    <td class="ps-4 fw-bold text-dark">
+                    <td class="ps-4 fw-bold text-dark align-middle">
                         ${c.curso}
                     </td>
-                    <td>
+                    <td class="align-middle">
                         <div class="d-flex align-items-center">
                             <div class="bg-light rounded-circle p-2 me-2 text-secondary"
                                  style="width: 32px; height: 32px; display: flex; align-items: center; justify-content: center;">
@@ -66,14 +76,14 @@ async function cargarBoletaGlobal() {
                             <small class="text-muted">${c.docente || "Sin asignar"}</small>
                         </div>
                     </td>
-                    <td class="text-center">
-                        <span class="badge bg-${c.colorEstado} bg-opacity-10 text-${c.colorEstado}
-                                     px-3 py-2 rounded-pill border border-${c.colorEstado} border-opacity-10"
+                    <td class="text-center align-middle">
+                        <span class="badge bg-${colorBadge} bg-opacity-10 text-${colorBadge}
+                                     px-3 py-2 rounded-pill border border-${colorBadge} border-opacity-10"
                               style="min-width: 110px;">
                             <i class="fa-solid ${icon} me-1"></i> ${c.estado}
                         </span>
                     </td>
-                    <td class="text-center">
+                    <td class="text-center align-middle">
                         <div class="d-flex align-items-center justify-content-center" style="min-width: 120px;">
                             <div class="progress w-50" style="height: 6px; background-color: #e9ecef;">
                                 <div class="progress-bar bg-primary"
@@ -89,7 +99,7 @@ async function cargarBoletaGlobal() {
                             </small>
                         </div>
                     </td>
-                    <td class="text-end pe-4">
+                    <td class="text-end pe-4 align-middle">
                         <span class="h5 fw-bold ${colorNotaFinal}">
                             ${c.promedio.toFixed(2)}
                         </span>
@@ -99,17 +109,16 @@ async function cargarBoletaGlobal() {
 
             tabla.innerHTML = html;
 
-            const promedioGeneral =
-                cursosConNota > 0 ? (sumaPromedios / cursosConNota) : 0;
+            if (lblPromedio) {
+                const promedioGeneral = cursosConNota > 0 ? (sumaPromedios / cursosConNota) : 0;
+                lblPromedio.innerText = promedioGeneral.toFixed(2);
 
-            lblPromedio.innerText = promedioGeneral.toFixed(2);
-
-            const colorGeneral =
-                (promedioGeneral < 11 && promedioGeneral > 0)
-                    ? "text-danger"
-                    : "text-primary";
-
-            lblPromedio.className = `fw-bold mb-0 display-6 ${colorGeneral}`;
+                let colorGeneral = "text-secondary";
+                if (promedioGeneral > 0) {
+                    colorGeneral = (promedioGeneral < 11) ? "text-danger" : "text-primary";
+                }
+                lblPromedio.className = `fw-bold mb-0 display-6 ${colorGeneral}`;
+            }
         }
     } catch (error) {
         console.error("Error en cargarBoletaGlobal:", error);
@@ -117,47 +126,41 @@ async function cargarBoletaGlobal() {
             <tr>
                 <td colspan="5" class="text-center text-danger py-5">
                     <i class="fa-solid fa-triangle-exclamation display-4 mb-3"></i>
-                    <p>No se pudo conectar con el servidor de notas. Intente más tarde.</p>
+                    <p>No se pudo conectar con el servidor de notas.</p>
                 </td>
             </tr>`;
     }
 }
 
-/* GENERACIÓN del pdf de boletas */
-
+/* PDF */
 function descargarPDF() {
+    if (typeof html2pdf === 'undefined') {
+        alert("Librería PDF no cargada.");
+        return;
+    }
     const elemento = document.getElementById("areaImprimible");
     const cabecera = document.getElementById("cabeceraPdf");
     const pie = document.getElementById("piePdf");
 
-    cabecera.classList.remove("d-none");
-    pie.classList.remove("d-none");
+    if (cabecera) cabecera.classList.remove("d-none");
+    if (pie) pie.classList.remove("d-none");
 
     const opciones = {
         margin: [0.5, 0.5, 0.5, 0.5],
-        filename: `Boleta_Final_${new Date().getFullYear()}_${Math.floor(Math.random() * 1000)}.pdf`,
+        filename: `Boleta_Notas_${new Date().getFullYear()}.pdf`,
         image: { type: "jpeg", quality: 0.98 },
-        html2canvas: {
-            scale: 3,
-            useCORS: true,
-            logging: false,
-            letterRendering: true
-        },
+        html2canvas: { scale: 2, useCORS: true, logging: false },
         jsPDF: { unit: "in", format: "a4", orientation: "portrait" }
     };
 
-    html2pdf()
-        .set(opciones)
-        .from(elemento)
-        .save()
+    html2pdf().set(opciones).from(elemento).save()
         .then(() => {
-            cabecera.classList.add("d-none");
-            pie.classList.add("d-none");
+            if (cabecera) cabecera.classList.add("d-none");
+            if (pie) pie.classList.add("d-none");
         })
         .catch(err => {
-            console.error("Error al generar PDF:", err);
-            cabecera.classList.add("d-none");
-            pie.classList.add("d-none");
-            alert("Hubo un error al generar el archivo PDF.");
+            console.error(err);
+            if (cabecera) cabecera.classList.add("d-none");
+            if (pie) pie.classList.add("d-none");
         });
 }

@@ -33,5 +33,19 @@ namespace Escuela.Web.Controllers
         {
             return View();
         }
+
+        public IActionResult Bienestar()
+        {
+            return View();
+        }
+
+        public IActionResult Mensajes()
+        {
+            return View();
+        }
+        public IActionResult Incidencias()
+        {
+            return View();
+        }
     }
 }
