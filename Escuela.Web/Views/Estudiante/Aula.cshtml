@@ -1,0 +1,127 @@
+﻿@{
+    ViewData["Title"] = "Aula Virtual";
+    Layout = "~/Views/Shared/_LayoutEstudiante.cshtml";
+}
+
+<div class="container-fluid p-0">
+    <div class="card border-0 shadow-sm mb-4 overflow-hidden">
+        <div class="card-body p-4 bg-primary text-white position-relative" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+            <div class="d-flex justify-content-between align-items-center position-relative z-1">
+                <div>
+                    <a href="/Estudiante/Cursos" class="text-white text-decoration-none small mb-2 d-inline-block opacity-75 hover-opacity-100">
+                        <i class="fa-solid fa-arrow-left me-1"></i> Volver a mis cursos
+                    </a>
+                    <h2 class="fw-bold mb-0" id="lblNombreCurso">Cargando curso...</h2>
+                    <p class="mb-0 opacity-75" id="lblNombreDocente">...</p>
+                </div>
+                <div class="d-none d-md-block">
+                    <i class="fa-solid fa-graduation-cap display-1 opacity-25"></i>
+                </div>
+            </div>
+        </div>
+
+        <div class="card-footer bg-white p-0 border-0">
+            <ul class="nav nav-tabs nav-justified border-0" id="aulaTabs" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active py-3 border-0 border-bottom border-3 fw-medium rounded-0"
+                            id="tareas-tab" data-bs-toggle="tab" data-bs-target="#tareas-pane" type="button">
+                        <i class="fa-solid fa-clipboard-list me-2"></i>Tareas
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link py-3 border-0 border-bottom border-3 fw-medium rounded-0"
+                            id="materiales-tab" data-bs-toggle="tab" data-bs-target="#materiales-pane" type="button">
+                        <i class="fa-solid fa-folder-open me-2"></i>Materiales
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link py-3 border-0 border-bottom border-3 fw-medium rounded-0"
+                            id="notas-tab" data-bs-toggle="tab" data-bs-target="#notas-pane" type="button">
+                        <i class="fa-solid fa-star me-2"></i>Mis Notas
+                    </button>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="tab-content" id="aulaTabsContent">
+
+        <div class="tab-pane fade show active" id="tareas-pane" role="tabpanel">
+            <div id="listaTareas" class="row g-3">
+                <div class="text-center py-5"><div class="spinner-border text-primary"></div></div>
+            </div>
+        </div>
+
+        <div class="tab-pane fade" id="materiales-pane" role="tabpanel" aria-labelledby="materiales-tab">
+            <div class="row justify-content-center">
+                <div class="col-md-10">
+                    <div class="card border-0 shadow-sm mt-3">
+                        <div class="card-header bg-white py-3 border-0">
+                            <h5 class="fw-bold mb-0 text-primary">
+                                <i class="fa-solid fa-folder-open me-2"></i>Recursos del Docente
+                            </h5>
+                        </div>
+                        <div class="card-body p-0">
+                            <div id="listaMateriales" class="list-group list-group-flush">
+                                <div class="text-center py-5">
+                                    <div class="spinner-border text-primary" role="status"></div>
+                                    <p class="mt-2 text-muted small">Buscando archivos...</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="tab-pane fade" id="notas-pane" role="tabpanel">
+            <div id="contenedorNotas" class="text-center py-5">
+                <div class="spinner-border text-primary"></div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<div class="modal fade" id="modalEntrega" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg">
+            <div class="modal-header bg-primary text-white border-0">
+                <h5 class="modal-title fw-bold">
+                    <i class="fa-solid fa-cloud-arrow-up me-2"></i>Entregar Tarea
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-4">
+                <form id="formEntrega">
+                    <input type="hidden" id="hdnTareaId" />
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold text-dark" id="lblTituloTarea">Título de la Tarea</label>
+                        <p class="text-muted small">Selecciona tu archivo (Word o PDF). Máximo 5MB.</p>
+
+                        <div class="input-group">
+                            <input type="file" class="form-control" id="fileEntrega" accept=".pdf,.doc,.docx" required>
+                        </div>
+                    </div>
+
+                    <div id="progresoEntrega" class="progress mt-3" style="height: 5px; display:none;">
+                        <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" style="width: 100%"></div>
+                    </div>
+
+                    <div id="mensajeError" class="alert alert-danger mt-3 small py-2" style="display:none;"></div>
+                </form>
+            </div>
+            <div class="modal-footer border-0 pt-0">
+                <button type="button" class="btn btn-light rounded-pill" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-primary rounded-pill px-4" onclick="enviarTarea()">
+                    <i class="fa-solid fa-paper-plane me-2"></i>Enviar
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/js/estudiante/aula.js"></script>
+}

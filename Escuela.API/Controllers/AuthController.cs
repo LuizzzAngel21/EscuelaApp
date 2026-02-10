@@ -69,12 +69,20 @@ namespace Escuela.API.Controllers
             {
                 return BadRequest("El usuario y contraseña son obligatorios.");
             }
+
             var user = await _userManager.FindByNameAsync(request.Email);
 
             if (user != null && await _userManager.CheckPasswordAsync(user, request.Password))
             {
+                var roles = await _userManager.GetRolesAsync(user);
+                var rolPrincipal = roles.FirstOrDefault() ?? "Estudiantil";
                 var token = await GenerateJwtToken(user);
-                return Ok(new { token });
+                return Ok(new
+                {
+                    token = token,
+                    nombre = user.UserName,
+                    rol = rolPrincipal   
+                });
             }
 
             return Unauthorized(new { message = "Credenciales incorrectas (Use su correo institucional)." });

@@ -1,0 +1,323 @@
+﻿/* Globales y de config base */
+:root {
+    --color-primary: #0b2a4a;
+    --color-primary-light: #143d66;
+    --color-secondary: #B91C1C;
+    --color-bg: #F3F4F6;
+    --white: #ffffff;
+    --sidebar-width: 260px;
+    --sidebar-collapsed-width: 80px;
+    --topbar-height: 70px;
+    --font-main: 'Playfair Display', serif;
+    --transition-speed: 0.3s;
+}
+
+/* Reset básico */
+* {
+    box-sizing: border-box;
+}
+
+body {
+    background-color: var(--color-bg);
+    font-family: var(--font-main);
+    margin: 0;
+    color: var(--color-primary);
+}
+
+/* Layout del estudiante */
+.app-container {
+    display: flex;
+    height: 100vh;
+    width: 100%;
+}
+
+.main-wrapper {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+}
+
+.page-content {
+    flex: 1;
+    padding: 30px;
+    overflow-y: auto;
+}
+
+/* SideBar del layout */
+.sidebar {
+    width: var(--sidebar-width);
+    background-color: var(--color-primary);
+    display: flex;
+    flex-direction: column;
+    color: var(--white);
+    transition: width var(--transition-speed) ease;
+    z-index: 100;
+    white-space: nowrap;
+    overflow: hidden;
+}
+
+    /* Sidebar colapsado */
+    .sidebar.collapsed {
+        width: var(--sidebar-collapsed-width);
+    }
+
+        .sidebar.collapsed .link-text,
+        .sidebar.collapsed .sidebar-brand-text,
+        .sidebar.collapsed .menu-header {
+            display: none;
+        }
+
+/* Cabecera del sidebar */
+.sidebar-header {
+    height: var(--topbar-height);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 15px 0 25px;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+}
+
+
+/* logo del sidebar */
+.sidebar-brand {
+    font-size: 1.2rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+}
+
+/*menú de navegación del sidebar */
+.sidebar-menu {
+    list-style: none;
+    padding: 20px 0;
+    margin: 0;
+    overflow-y: auto;
+    flex: 1;
+}
+
+    .sidebar-menu li a {
+        display: flex;
+        align-items: center;
+        padding: 14px 25px;
+        color: rgba(255,255,255,0.8);
+        text-decoration: none;
+        transition: 0.2s;
+        border-left: 4px solid transparent;
+    }
+
+        .sidebar-menu li a:hover {
+            background-color: rgba(255,255,255,0.1);
+            color: var(--white);
+            border-left-color: var(--color-secondary);
+        }
+
+        /* Íconos del menú lateral */
+        .sidebar-menu li a i {
+            width: 30px;
+            margin-right: 10px;
+            text-align: center;
+        }
+
+/* Topbar */
+.topbar {
+    height: var(--topbar-height);
+    background-color: var(--white);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 30px;
+    border-bottom: 1px solid #E5E7EB;
+}
+
+/* Perfil del usuario en el topbar */
+.user-profile-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding-left: 15px;
+}
+
+.user-info-details {
+    display: flex;
+    flex-direction: column;
+    text-align: right;
+    line-height: 1.2;
+}
+
+/* dropdown para el perfil del usuario */
+.user-dropdown-menu {
+    position: absolute;
+    top: 75px;
+    right: 30px;
+    width: 280px;
+    background: var(--white);
+    border-radius: 8px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+    display: none;
+    border: 1px solid #E5E7EB;
+    z-index: 1000;
+}
+
+    /* Dropdown visible */
+    .user-dropdown-menu.show {
+        display: block;
+    }
+
+/* Cabecera del dropdown */
+.dropdown-header {
+    padding: 15px 20px;
+    background-color: #F9FAFB;
+    border-bottom: 1px solid #E5E7EB;
+    border-radius: 8px 8px 0 0;
+}
+
+/* Opciones del dropdown */
+.user-dropdown-menu a {
+    display: flex;
+    align-items: center;
+    padding: 12px 20px;
+    color: var(--color-primary);
+    text-decoration: none;
+    font-size: 0.9rem;
+    transition: background 0.2s;
+}
+
+    .user-dropdown-menu a:hover {
+        background-color: var(--color-bg);
+    }
+
+/* Inicio (primero modulo - dashboard) */
+.timeline-container {
+    position: relative;
+    padding-left: 20px;
+    border-left: 2px solid #E5E7EB;
+    margin-left: 10px;
+}
+
+.timeline-item {
+    position: relative;
+    margin-bottom: 30px;
+}
+
+.timeline-dot {
+    position: absolute;
+    left: -26px;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: var(--white);
+    border: 3px solid var(--color-primary);
+    z-index: 10;
+}
+
+.timeline-item.current .timeline-dot {
+    background: var(--color-primary);
+    box-shadow: 0 0 0 4px rgba(11, 42, 74, 0.2);
+}
+
+/* Cursos - Aula Virtual */
+.curso-card {
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+    border-radius: 12px !important;
+    border: none;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+}
+
+    .curso-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(0,0,0,0.08) !important;
+    }
+
+.nav-tabs .nav-link {
+    color: #6B7280;
+    font-weight: 500;
+}
+
+    .nav-tabs .nav-link.active {
+        color: var(--color-primary) !important;
+        border-bottom: 3px solid var(--color-primary) !important;
+        border: none;
+    }
+
+
+}
+
+/* generales */
+.text-primary {
+    color: var(--color-primary) !important;
+}
+
+.bg-primary {
+    background-color: var(--color-primary) !important;
+}
+
+.rounded-lg {
+    border-radius: 12px;
+}
+
+.shadow-elegant {
+    box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+}
+
+/* estado inicial del sidebar */
+.sidebar-collapsed-init .sidebar {
+    width: var(--sidebar-collapsed-width);
+}
+
+    .sidebar-collapsed-init .sidebar .link-text,
+    .sidebar-collapsed-init .sidebar .sidebar-brand-text,
+    .sidebar-collapsed-init .sidebar .menu-header {
+        display: none;
+    }
+
+/* ajustes de topbar */
+.topbar .text-end {
+    margin-right: 6px;
+}
+
+.topbar .d-flex.align-items-center.cursor-pointer {
+    gap: 14px !important;
+}
+
+/* ajuste de ícono */
+
+.user-dropdown-menu a i {
+    margin-right: 10px;
+    width: 18px;
+    text-align: center;
+}
+
+
+
+/* style para el modulo de horario y asistencia */
+
+.hover-card {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+    .hover-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 10px 20px rgba(0,0,0,0.08) !important;
+    }
+
+.min-vh-30 {
+    min-height: 30vh;
+}
+
+.col-dia {
+    background-color: #fff;
+    border-right: 1px solid #f0f0f0;
+}
+
+    .col-dia:last-child {
+        border-right: none;
+    }
+
+.header-dia {
+    background-color: #f8f9fa;
+    color: #6c757d;
+    font-size: 0.75rem;
+    letter-spacing: 1px;
+    border-bottom: 2px solid #e9ecef;
+}

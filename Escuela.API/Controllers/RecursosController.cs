@@ -48,7 +48,7 @@ namespace Escuela.API.Controllers
                 return BadRequest("No has subido ningún archivo.");
 
             string rutaRaiz = _env.WebRootPath ?? _env.ContentRootPath;
-            var carpetaDestino = Path.Combine(rutaRaiz, "uploads");
+            var carpetaDestino = Path.Combine(rutaRaiz, "materiales");
 
             if (!Directory.Exists(carpetaDestino)) Directory.CreateDirectory(carpetaDestino);
 
@@ -66,7 +66,7 @@ namespace Escuela.API.Controllers
                 Titulo = dto.Titulo,
                 CursoId = dto.CursoId,
                 FechaSubida = DateTime.Now,
-                RutaArchivo = $"uploads/{nombreArchivo}"
+                RutaArchivo = $"materiales/{nombreArchivo}"
             };
 
             _context.Recursos.Add(nuevoRecurso);

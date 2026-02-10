@@ -22,7 +22,7 @@ namespace Escuela.API.Controllers
         [HttpGet("MisPagos")]
         public async Task<ActionResult<IEnumerable<PensionDto>>> GetMisPensiones()
         {
-            var userId = User.FindFirstValue("uid");
+            var userId = User.FindFirstValue("uid") ?? User.FindFirstValue(ClaimTypes.NameIdentifier);
             var esEstudiante = User.IsInRole("Estudiantil");
 
             var matricula = await _context.Matriculas
@@ -44,22 +44,27 @@ namespace Escuela.API.Controllers
 
             foreach (var p in pensiones)
             {
-                string estado = "PENDIENTE";
-                string color = "orange";
+                string estado = "PROGRAMADO"; 
+                string color = "#6c757d";
                 decimal moraCalculada = p.Mora;
 
                 if (p.Pagado)
                 {
                     estado = "PAGADO";
-                    color = "green";
+                    color = "#198754"; 
                 }
                 else
                 {
-                    if (hoy > p.FechaVencimiento)
+                    if (hoy.Date > p.FechaVencimiento.Date)
                     {
                         estado = "VENCIDO";
-                        color = "red";
+                        color = "#dc3545";
                         moraCalculada = 50.00m;
+                    }
+                    else if (hoy.Month == p.FechaVencimiento.Month && hoy.Year == p.FechaVencimiento.Year)
+                    {
+                        estado = "PENDIENTE";
+                        color = "#ffc107"; 
                     }
                 }
 
@@ -91,14 +96,16 @@ namespace Escuela.API.Controllers
             if (pension.Pagado)
                 return BadRequest("Esta pensión ya está pagada.");
 
-            if (!dto.NumeroTarjeta.StartsWith("4"))
+            string tarjetaLimpia = dto.NumeroTarjeta.Replace(" ", "").Trim();
+
+            if (!tarjetaLimpia.StartsWith("4"))
             {
-                return BadRequest("Pago Rechazado: Tarjeta inválida o fondos insuficientes.");
+                return BadRequest("Pago Rechazado: Tarjeta inválida (debe iniciar con 4) o fondos insuficientes.");
             }
 
             if (DateTime.Now > pension.FechaVencimiento)
             {
-                pension.Mora = 50.00m; 
+                pension.Mora = 50.00m;
             }
 
             pension.Pagado = true;

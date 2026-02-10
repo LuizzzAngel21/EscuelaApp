@@ -1,0 +1,187 @@
+﻿<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Intranet Alfred Nobel</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <link rel="stylesheet" href="~/css/estudiante.css" />
+</head>
+<body>
+
+    <script>
+        if (localStorage.getItem("sidebar-collapsed") === "true") {
+            document.documentElement.classList.add("sidebar-collapsed-init");
+        }
+    </script>
+
+    <div class="app-container">
+        <nav class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <div class="sidebar-brand" id="logoToggleSidebar" style="cursor:pointer;">
+                    <i class="fa-solid fa-graduation-cap"></i>
+                    <span class="sidebar-brand-text ms-2">Alfred Nobel</span>
+                </div>
+            </div>
+
+            <ul class="sidebar-menu">
+                <li>
+                    <a href="/Estudiante/Inicio" title="Inicio">
+                        <i class="fa-solid fa-house"></i> <span class="link-text">Inicio</span>
+                    </a>
+                </li>
+
+                <li class="menu-header small text-uppercase text-white-50 mt-3 mb-2 ps-4">
+                    <span class="link-text" style="font-size: 0.7rem; letter-spacing: 1px;">Académico</span>
+                </li>
+
+                <li>
+                    <a href="/Estudiante/Horario" title="Horario">
+                        <i class="fa-regular fa-clock"></i> <span class="link-text">Horario</span>
+                    </a>
+                </li>
+
+                <li>
+                    <a href="/Estudiante/Cursos" title="Mis Cursos">
+                        <i class="fa-solid fa-book-open"></i> <span class="link-text">Cursos</span>
+                    </a>
+                </li>
+
+                <li>
+                    <a href="/Estudiante/Notas" title="Mis Notas">
+                        <i class="fa-solid fa-award"></i> <span class="link-text">Notas</span>
+                    </a>
+                </li>
+
+                <li class="menu-header small text-uppercase text-white-50 mt-3 mb-2 ps-4">
+                    <span class="link-text" style="font-size: 0.7rem; letter-spacing: 1px;">Gestión</span>
+                </li>
+
+                <li>
+                    <a href="/Estudiante/Pagos" title="Mis Pagos">
+                        <i class="fa-regular fa-credit-card"></i> <span class="link-text">Pagos</span>
+                    </a>
+                </li>
+
+                <li>
+                    <a href="/Estudiante/Bienestar" title="Bienestar y Psicología">
+                        <i class="fa-solid fa-heart-pulse"></i> <span class="link-text">Bienestar</span>
+                    </a>
+                </li>
+
+                <li style="margin-top: auto; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 10px;">
+                    <a href="#" onclick="logout()" title="Cerrar Sesión">
+                        <i class="fa-solid fa-arrow-right-from-bracket"></i> <span class="link-text">Cerrar Sesión</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+
+        <div class="main-wrapper">
+            <header class="topbar">
+                <h4 class="m-0" style="font-family: var(--font-heading); color: var(--color-primary);">
+                    @ViewData["Title"]
+                </h4>
+
+                <div class="d-flex align-items-center gap-4">
+                    <div class="cursor-pointer position-relative" onclick="window.location.href='/Estudiante/Mensajes'" title="Mensajes">
+                        <i class="fa-regular fa-envelope text-secondary fs-5"></i>
+                    </div>
+                    <div class="cursor-pointer position-relative" title="Notificaciones">
+                        <i class="fa-regular fa-bell text-secondary fs-5"></i>
+                    </div>
+
+                    <div style="width: 1px; height: 25px; background: #E5E7EB;"></div>
+
+                    <div class="position-relative">
+                        <div class="d-flex align-items-center gap-3 cursor-pointer" onclick="toggleUserMenu()">
+                            <div class="text-end d-none d-md-block" style="max-width: 150px;">
+                                <small class="text-muted d-block" style="font-size: 0.7rem;">ESTUDIANTE</small>
+                                <span class="fw-semibold text-dark d-block text-truncate" id="lblUsuarioTop">Cargando...</span>
+                            </div>
+                            <div class="avatar-circle">
+                                <i class="fa-solid fa-user"></i>
+                            </div>
+                        </div>
+
+                        <div class="user-dropdown-menu" id="userDropdown">
+                            <div class="dropdown-header">
+                                <p class="m-0 fw-bold text-dark text-truncate" id="lblUsuarioDrop">Usuario</p>
+                                <span class="user-email-text" id="lblEmailDrop">alumno@alfrednobel.edu.pe</span>
+                            </div>
+
+                            <a href="/Estudiante/Perfil"><i class="fa-regular fa-id-card"></i> Mi Perfil</a>
+                            <a href="/Estudiante/Seguridad"><i class="fa-solid fa-lock"></i> Contraseña</a>
+                            <div class="border-top my-1"></div>
+                            <a href="#" onclick="logout()" class="text-danger">
+                                <i class="fa-solid fa-power-off"></i> Cerrar Sesión
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <main class="page-content">
+                @RenderBody()
+            </main>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const nombre = localStorage.getItem("usuarioNombre") || "Alumno";
+            const email = localStorage.getItem("usuarioEmail") || "estudiante@alfrednobel.edu.pe";
+
+            if (lblUsuarioTop) lblUsuarioTop.innerText = nombre;
+            if (lblUsuarioDrop) lblUsuarioDrop.innerText = nombre;
+            if (lblEmailDrop) lblEmailDrop.innerText = email;
+
+            const sidebar = document.getElementById("sidebar");
+            const logoToggle = document.getElementById("logoToggleSidebar");
+
+            if (localStorage.getItem("sidebar-collapsed") === "true") {
+                sidebar.classList.add("collapsed");
+            }
+
+            logoToggle.addEventListener("click", () => {
+                sidebar.classList.toggle("collapsed");
+                localStorage.setItem("sidebar-collapsed", sidebar.classList.contains("collapsed"));
+            });
+
+                document.documentElement.classList.remove("sidebar-collapsed-init");
+
+        });
+
+        function toggleUserMenu() {
+            document.getElementById("userDropdown").classList.toggle("show");
+        }
+
+        document.addEventListener("click", (e) => {
+            const menu = document.getElementById("userDropdown");
+            const avatar = document.querySelector(".avatar-circle");
+            const info = document.querySelector(".text-end");
+
+            if (menu && !menu.contains(e.target) && !avatar.contains(e.target) && (!info || !info.contains(e.target))) {
+                menu.classList.remove("show");
+            }
+        });
+
+        function logout() {
+            localStorage.clear();
+            window.location.href = "/Auth/Login";
+        }
+    </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/config.js"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+
+</body>
+
+
+
+
+</html>

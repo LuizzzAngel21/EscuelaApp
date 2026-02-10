@@ -52,6 +52,8 @@ namespace Escuela.API.Controllers
             return Ok(notas);
         }
 
+
+
         [HttpPost]
         [Authorize(Roles = "Academico,Administrativo")]
         public async Task<ActionResult<NotaDto>> PostNota(CrearNotaDto dto)
@@ -88,6 +90,7 @@ namespace Escuela.API.Controllers
             return Ok(new { mensaje = "Nota registrada correctamente", nota = dto.Valor });
         }
 
+
         [HttpGet("Promedio")]
         public async Task<ActionResult<PromedioDto>> GetPromedioCurso(
             [FromQuery] int matriculaId,
@@ -97,50 +100,55 @@ namespace Escuela.API.Controllers
             if (esAlumno)
             {
                 var matricula = await _context.Matriculas.Include(m => m.Estudiante).FirstOrDefaultAsync(m => m.Id == matriculaId);
-                var userId = User.FindFirstValue("uid");
+                var userId = User.FindFirstValue("uid") ?? User.FindFirstValue(ClaimTypes.NameIdentifier);
                 if (matricula == null || matricula.Estudiante?.UsuarioId != userId) return Forbid();
             }
 
-            var criterios = await _context.CriteriosEvaluacion
-                .Where(c => c.CursoId == cursoId)
-                .ToListAsync();
+            var nombreCurso = await _context.Cursos.Where(c => c.Id == cursoId).Select(c => c.Nombre).FirstOrDefaultAsync() ?? "Desconocido";
+            var criterios = await _context.CriteriosEvaluacion.Where(c => c.CursoId == cursoId).ToListAsync();
 
-            if (!criterios.Any()) return BadRequest("Este curso no tiene criterios configurados.");
+            if (!criterios.Any())
+            {
+                return Ok(new PromedioDto { Curso = nombreCurso, PromedioFinal = 0, Estado = "SIN CONFIGURAR", Detalles = new List<DetalleNotaDto>() });
+            }
 
             var notasEstudiante = await _context.Notas
                 .Where(n => n.MatriculaId == matriculaId && n.CriterioEvaluacion!.CursoId == cursoId)
                 .ToListAsync();
 
             decimal sumaPonderada = 0;
-            decimal sumaPesos = 0;
+            decimal pesoEvaluado = 0; 
             var detalles = new List<DetalleNotaDto>();
 
             foreach (var criterio in criterios)
             {
                 var nota = notasEstudiante.FirstOrDefault(n => n.CriterioEvaluacionId == criterio.Id);
-                decimal valorNota = nota != null ? nota.Valor : 0;
+                decimal valorNota = 0;
 
-                sumaPonderada += valorNota * criterio.Peso;
-                sumaPesos += criterio.Peso;
+                if (nota != null)
+                {
+                    valorNota = nota.Valor;
+                    sumaPonderada += valorNota * criterio.Peso;
+                    pesoEvaluado += criterio.Peso; 
+                }
 
                 detalles.Add(new DetalleNotaDto
                 {
                     Evaluacion = criterio.Nombre,
                     Peso = criterio.Peso,
-                    NotaObtenida = valorNota
+                    NotaObtenida = valorNota 
                 });
             }
 
-            if (sumaPesos == 0) return BadRequest("Error: Los pesos del curso suman 0.");
+            decimal promedioFinal = 0;
+            string estado = "Sin Notas";
 
-            decimal promedioFinal = sumaPonderada / sumaPesos;
-            promedioFinal = Math.Round(promedioFinal, 2);
-            string estado = promedioFinal >= 11 ? "APROBADO" : "DESAPROBADO";
-
-            var nombreCurso = await _context.Cursos
-                .Where(c => c.Id == cursoId)
-                .Select(c => c.Nombre)
-                .FirstOrDefaultAsync() ?? "Desconocido";
+            if (pesoEvaluado > 0)
+            {
+                promedioFinal = sumaPonderada / pesoEvaluado;
+                promedioFinal = Math.Round(promedioFinal, 2);
+                estado = promedioFinal >= 11 ? "APROBADO" : "DESAPROBADO";
+            }
 
             return Ok(new PromedioDto
             {
@@ -149,6 +157,88 @@ namespace Escuela.API.Controllers
                 Estado = estado,
                 Detalles = detalles
             });
+        }
+
+        [HttpGet("BoletaGlobal")]
+        public async Task<ActionResult> GetBoletaGlobal()
+        {
+            var userId = User.FindFirstValue("uid") ?? User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            var matricula = await _context.Matriculas
+                .Include(m => m.Estudiante)
+                .OrderByDescending(m => m.Id)
+                .FirstOrDefaultAsync(m => m.Estudiante.UsuarioId == userId);
+
+            if (matricula == null) return Ok(new List<object>());
+
+            var cursosDelGrado = await _context.Cursos
+                .Include(c => c.Docente)
+                .Where(c => c.GradoId == matricula.GradoId)
+                .ToListAsync();
+
+            var notas = await _context.Notas
+                .Where(n => n.MatriculaId == matricula.Id)
+                .ToListAsync();
+
+            var cursoIds = cursosDelGrado.Select(c => c.Id).ToList();
+            var criteriosTodos = await _context.CriteriosEvaluacion
+                .Where(c => cursoIds.Contains(c.CursoId))
+                .ToListAsync();
+
+            var boleta = new List<object>();
+
+            foreach (var curso in cursosDelGrado)
+            {
+                var criteriosCurso = criteriosTodos.Where(c => c.CursoId == curso.Id).ToList();
+
+                decimal sumaPonderada = 0;
+                decimal pesoAcumulado = 0;
+
+                foreach (var c in criteriosCurso)
+                {
+                    var nota = notas.FirstOrDefault(n => n.CriterioEvaluacionId == c.Id);
+                    if (nota != null)
+                    {
+                        sumaPonderada += nota.Valor * c.Peso;
+                        pesoAcumulado += c.Peso;
+                    }
+                }
+
+                decimal promedio = 0;
+                string estado = "Sin Notas";
+                string colorEstado = "secondary"; 
+
+                if (pesoAcumulado > 0)
+                {
+                    promedio = sumaPonderada / pesoAcumulado; 
+
+                    if (promedio >= 11)
+                    {
+                        estado = "Aprobado";
+                        colorEstado = "success"; 
+                    }
+                    else
+                    {
+                        estado = "Reprobado";
+                        colorEstado = "danger"; 
+                    }
+                }
+
+                decimal pesoTotalCurso = criteriosCurso.Sum(c => c.Peso);
+                decimal avance = pesoTotalCurso > 0 ? (pesoAcumulado / pesoTotalCurso) * 100 : 0;
+
+                boleta.Add(new
+                {
+                    Curso = curso.Nombre,
+                    Docente = curso.Docente != null ? $"{curso.Docente.Nombres} {curso.Docente.Apellidos}" : "Por asignar",
+                    Promedio = Math.Round(promedio, 2),
+                    Estado = estado,
+                    ColorEstado = colorEstado, 
+                    Avance = Math.Round(avance, 0)
+                });
+            }
+
+            return Ok(boleta);
         }
 
         [HttpPut("{id}")]

@@ -1,26 +1,20 @@
-﻿
-@{
+﻿@{
     ViewData["Title"] = "Login";
-}
-
-@{
     Layout = null;
 }
-
 
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <title>Login | Alfred Nobel</title>
-    <link rel="stylesheet" href="/css/login.css">
+    <link rel="stylesheet" href="~/css/login.css">
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&family=Inter:wght@400;500&display=swap" rel="stylesheet">
 </head>
 <body>
 
     <div class="login-container">
 
-        <!-- ENCABEZADO -->
         <div class="login-logo">
             <img src="~/img/logo.jpeg" alt="Logo Alfred Nobel">
         </div>
@@ -33,32 +27,29 @@
             </p>
         </header>
 
-        <!-- FORMULARIO -->
         <main class="login-box">
             <label>Usuario</label>
-            <input type="text" placeholder="Ingrese su usuario">
+            <input type="email" id="txtEmail" placeholder="Ingrese su correo" class="form-control">
 
             <label>Contraseña</label>
-            <input type="password" placeholder="Ingrese su contraseña">
+            <input type="password" id="txtPassword" placeholder="Ingrese su contraseña" class="form-control">
 
-            <button>INGRESAR</button>
+            <button type="button" id="btnIngresar" onclick="login()">INGRESAR</button>
 
         </main>
 
-        <!-- PIE INFERIOR -->
         <footer class="login-footer">
-       
             <div class="footer-legal">
                 <a href="#">Políticas de privacidad</a>
                 ·
                 <a href="#">Términos y Condiciones</a>
             </div>
-
         </footer>
 
     </div>
 
+    <script src="~/js/config.js"></script>
+    <script src="~/js/auth.js"></script>
+
 </body>
 </html>
-
-

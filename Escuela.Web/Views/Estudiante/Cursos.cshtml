@@ -1,0 +1,32 @@
+﻿@{
+    ViewData["Title"] = "Mis Cursos";
+    Layout = "~/Views/Shared/_LayoutEstudiante.cshtml";
+}
+
+<div class="container-fluid p-0">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h4 class="fw-bold text-dark mb-1" style="font-family: var(--font-heading);">Mis Cursos</h4>
+            <p class="text-muted small mb-0">Selecciona una materia para ver tareas y materiales</p>
+        </div>
+        <span class="badge bg-white text-secondary border px-3 py-2">Periodo 2026-I</span>
+    </div>
+
+    <div id="loaderCursos" class="text-center py-5">
+        <div class="spinner-border text-primary" role="status"></div>
+        <p class="mt-2 text-muted small">Cargando materias...</p>
+    </div>
+
+    <div id="gridCursos" class="row g-4" style="display:none;">
+    </div>
+
+    <div id="emptyStateCursos" class="text-center py-5" style="display:none;">
+        <i class="fa-solid fa-folder-open display-1 text-light mb-3"></i>
+        <h5 class="text-muted">No tienes cursos matriculados</h5>
+        <p class="text-secondary small">Contacta a coordinación académica.</p>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/js/estudiante/cursos.js"></script>
+}

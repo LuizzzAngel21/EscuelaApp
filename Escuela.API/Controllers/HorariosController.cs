@@ -34,7 +34,7 @@ namespace Escuela.API.Controllers
                 .Include(h => h.Curso)
                 .ThenInclude(c => c.Grado)
                 .Include(h => h.Curso)
-                .ThenInclude(c => c.Docente)
+                .ThenInclude(c => c.Docente) // Importante para sacar el nombre
                 .AsQueryable();
 
             if (esAlumno)
@@ -62,12 +62,17 @@ namespace Escuela.API.Controllers
                     HoraInicio = h.HoraInicio.ToString(@"hh\:mm"),
                     HoraFin = h.HoraFin.ToString(@"hh\:mm"),
                     Curso = h.Curso != null ? h.Curso.Nombre : "Sin Curso",
-                    Grado = h.Curso != null && h.Curso.Grado != null ? h.Curso.Grado.Nombre : "N/A"
+                    Grado = h.Curso != null && h.Curso.Grado != null ? h.Curso.Grado.Nombre : "N/A",
+                    // NUEVO: Enviamos el nombre del docente si existe
+                    Docente = h.Curso != null && h.Curso.Docente != null
+                        ? $"{h.Curso.Docente.Nombres} {h.Curso.Docente.Apellidos}"
+                        : ""
                 }).ToListAsync();
 
             return Ok(horarios);
         }
 
+        // ... (El resto de métodos Post, PostMasivo y Delete quedan igual que antes) ...
         [HttpPost]
         [Authorize(Roles = "Administrativo,Academico")]
         public async Task<ActionResult<HorarioDto>> PostHorario(CrearHorarioDto dto)
@@ -96,6 +101,7 @@ namespace Escuela.API.Controllers
 
             var horarioDb = await _context.Horarios
                 .Include(h => h.Curso).ThenInclude(c => c.Grado)
+                .Include(h => h.Curso).ThenInclude(c => c.Docente)
                 .FirstAsync(h => h.Id == nuevoHorario.Id);
 
             var respuesta = new HorarioDto
@@ -105,7 +111,8 @@ namespace Escuela.API.Controllers
                 HoraInicio = horarioDb.HoraInicio.ToString(@"hh\:mm"),
                 HoraFin = horarioDb.HoraFin.ToString(@"hh\:mm"),
                 Curso = horarioDb.Curso?.Nombre ?? "N/A",
-                Grado = horarioDb.Curso?.Grado?.Nombre ?? "N/A"
+                Grado = horarioDb.Curso?.Grado?.Nombre ?? "N/A",
+                Docente = horarioDb.Curso?.Docente != null ? $"{horarioDb.Curso.Docente.Nombres} {horarioDb.Curso.Docente.Apellidos}" : ""
             };
 
             return CreatedAtAction(nameof(GetHorarios), new { id = respuesta.Id }, respuesta);

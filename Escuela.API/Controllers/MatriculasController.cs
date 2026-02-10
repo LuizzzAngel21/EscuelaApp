@@ -9,6 +9,7 @@ using Microsoft.EntityFrameworkCore;
 using QuestPDF.Fluent;
 using QuestPDF.Helpers;
 using QuestPDF.Infrastructure;
+using System.Security.Claims;
 
 namespace Escuela.API.Controllers
 {
@@ -189,6 +190,29 @@ namespace Escuela.API.Controllers
             await GenerarPensionesAnuales(matricula.Id);
 
             return Ok(new { mensaje = "Matrícula directa registrada exitosamente.", matriculaId = matricula.Id });
+        }
+
+
+        [HttpGet("MiMatriculaActual")]
+        [Authorize(Roles = "Estudiantil")]
+        public async Task<ActionResult<MatriculaDto>> GetMiMatriculaActual()
+        {
+            var userId = User.FindFirstValue("uid");
+
+            var matricula = await _context.Matriculas
+                .Include(m => m.Grado)
+                .Where(m => m.Estudiante.UsuarioId == userId)
+                .OrderByDescending(m => m.FechaMatricula) 
+                .FirstOrDefaultAsync();
+
+            if (matricula == null) return NotFound("No tienes matrícula activa.");
+
+            return Ok(new
+            {
+                Id = matricula.Id,
+                Grado = matricula.Grado?.Nombre,
+                Fecha = matricula.FechaMatricula.ToShortDateString()
+            });
         }
 
         [HttpGet("Ficha/{id}")]

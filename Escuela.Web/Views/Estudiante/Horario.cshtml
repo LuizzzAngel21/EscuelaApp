@@ -1,0 +1,72 @@
+﻿@{
+    ViewData["Title"] = "Agenda y Asistencia";
+    Layout = "~/Views/Shared/_LayoutEstudiante.cshtml";
+}
+
+<link rel="stylesheet" href="~/css/estudiante.css" />
+
+<div class="container-fluid py-4">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="fw-bold text-dark mb-1">Agenda Académica</h2>
+            <p class="text-muted mb-0">Gestión de tiempo y control de cumplimiento.</p>
+        </div>
+        <div class="d-none d-md-block">
+            <span class="badge bg-white text-secondary border px-3 py-2 rounded-pill shadow-sm">
+                <i class="fa-regular fa-calendar-check me-2"></i>Periodo Activo
+            </span>
+        </div>
+    </div>
+
+    <div class="card border-0 shadow-sm mb-5 overflow-hidden">
+        <div class="card-header bg-white py-3 border-bottom">
+            <h6 class="fw-bold text-primary mb-0">
+                <i class="fa-solid fa-clock me-2"></i>Horario de Clases
+            </h6>
+        </div>
+        <div class="card-body p-0">
+            <div class="row g-0">
+                <div class="col-md col-dia">
+                    <div class="p-2 header-dia text-center fw-bold text-uppercase">Lunes</div>
+                    <div id="col-Lunes" class="p-2 min-vh-30"></div>
+                </div>
+                <div class="col-md col-dia">
+                    <div class="p-2 header-dia text-center fw-bold text-uppercase">Martes</div>
+                    <div id="col-Martes" class="p-2 min-vh-30"></div>
+                </div>
+                <div class="col-md col-dia">
+                    <div class="p-2 header-dia text-center fw-bold text-uppercase">Miércoles</div>
+                    <div id="col-Miercoles" class="p-2 min-vh-30"></div>
+                </div>
+                <div class="col-md col-dia">
+                    <div class="p-2 header-dia text-center fw-bold text-uppercase">Jueves</div>
+                    <div id="col-Jueves" class="p-2 min-vh-30"></div>
+                </div>
+                <div class="col-md col-dia">
+                    <div class="p-2 header-dia text-center fw-bold text-uppercase">Viernes</div>
+                    <div id="col-Viernes" class="p-2 min-vh-30"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-12 mb-3">
+            <h4 class="fw-bold text-dark border-start border-4 border-primary ps-3">Reporte de Asistencia</h4>
+            <p class="text-muted small ps-3">Desglose de cumplimiento por asignatura.</p>
+        </div>
+
+        <div id="contenedorAsistencias" class="row g-4">
+            <div class="col-12 text-center py-5">
+                <div class="spinner-border text-primary" role="status"></div>
+                <p class="mt-2 text-muted small">Calculando métricas de asistencia...</p>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+@section Scripts {
+    <script src="~/js/estudiante/horario.js"></script>
+}
