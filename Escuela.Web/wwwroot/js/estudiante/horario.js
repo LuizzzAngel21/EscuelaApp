@@ -1,19 +1,13 @@
-﻿document.addEventListener("DOMContentLoaded", () => {
-    cargarHorario();
-    cargarAsistenciaPorCurso();
+﻿let cacheAsistencias = {};
+
+document.addEventListener("DOMContentLoaded", () => {
+    cargarHorarioNormalizado();
+    cargarAsistenciaCompleta();
 });
 
-/* Horario semanal */
-async function cargarHorario() {
+async function cargarHorarioNormalizado() {
+    const tbody = document.getElementById("tablaHorarioBody");
     const token = localStorage.getItem("tokenEscuela");
-    const diasMap = {
-        "Lunes": "col-Lunes",
-        "Martes": "col-Martes",
-        "Miercoles": "col-Miercoles",
-        "Miércoles": "col-Miercoles",
-        "Jueves": "col-Jueves",
-        "Viernes": "col-Viernes"
-    };
 
     try {
         const response = await fetch(`${API_BASE_URL}/Horarios`, {
@@ -21,196 +15,194 @@ async function cargarHorario() {
         });
 
         if (response.ok) {
-            const horarios = await response.json();
-
-            Object.values(diasMap).forEach(id => {
-                const col = document.getElementById(id);
-                if (col) col.innerHTML = "";
-            });
+            let horarios = await response.json();
 
             if (horarios.length === 0) {
-                const miercoles = document.getElementById("col-Miercoles");
-                if (miercoles) miercoles.innerHTML = `<div class="text-center text-muted mt-4 small opacity-50">Sin horarios.</div>`;
+                tbody.innerHTML = `<tr><td colspan="6" class="text-center py-5 text-muted fst-italic">No hay horarios registrados.</td></tr>`;
                 return;
             }
 
-            horarios.forEach(h => {
-                const colId = diasMap[h.dia];
-                const contenedor = document.getElementById(colId);
-
-                if (contenedor) {
-                    const card = `
-                        <div class="card border-0 shadow-sm mb-2 hover-card" style="background-color: #fcfcfc;">
-                            <div class="card-body p-3 border-start border-4 border-primary rounded-end">
-                                <h6 class="fw-bold text-dark mb-1" style="font-size: 0.85rem;">${h.curso}</h6>
-                                <div class="text-muted small mb-2 d-flex align-items-center">
-                                    <i class="fa-regular fa-clock me-1 text-primary"></i> ${h.horaInicio} - ${h.horaFin}
-                                </div>
-                                <div class="d-flex align-items-center pt-2 border-top border-light">
-                                    <small class="text-secondary text-truncate">${h.docente || 'Sin asignar'}</small>
-                                </div>
-                            </div>
-                        </div>`;
-                    contenedor.innerHTML += card;
-                }
+            const horasUnicas = [...new Set(horarios.map(h => h.horaInicio))].sort((a, b) => {
+                return parseInt(a.replace(":", "")) - parseInt(b.replace(":", ""));
             });
+
+            const diasMap = { "Lunes": 1, "Martes": 2, "Miercoles": 3, "Miércoles": 3, "Jueves": 4, "Viernes": 5 };
+            let htmlFilas = "";
+
+            horasUnicas.forEach(hora => {
+                let celdas = ["", "", "", "", "", ""];
+                const clasesHora = horarios.filter(h => h.horaInicio === hora);
+
+                clasesHora.forEach(clase => {
+                    const idx = diasMap[clase.dia];
+                    if (idx) {
+                        celdas[idx] = `
+                            <div class="clase-card">
+                                <div class="clase-nombre">${clase.curso}</div>
+                                <span class="clase-info text-primary mb-1" style="font-weight:600;">${clase.horaInicio} - ${clase.horaFin}</span>
+                                <span class="clase-info"><i class="fa-solid fa-user-tie me-1"></i>${clase.docente || 'Docente'}</span>
+                            </div>`;
+                    }
+                });
+
+                htmlFilas += `<tr>
+                                <td class="col-hora">${hora}</td>
+                                <td>${celdas[1]}</td><td>${celdas[2]}</td><td>${celdas[3]}</td><td>${celdas[4]}</td><td>${celdas[5]}</td>
+                              </tr>`;
+            });
+            tbody.innerHTML = htmlFilas;
         }
     } catch (error) {
-        console.error("Error horario:", error);
+        console.error(error);
+        tbody.innerHTML = `<tr><td colspan="6" class="text-center text-danger py-4">Error al cargar horario.</td></tr>`;
     }
 }
 
-/* Asistencias por curso */
-async function cargarAsistenciaPorCurso() {
+async function cargarAsistenciaCompleta() {
     const contenedor = document.getElementById("contenedorAsistencias");
     const token = localStorage.getItem("tokenEscuela");
 
     try {
-        const respMat = await fetch(`${API_BASE_URL}/Matriculas/MiMatriculaActual`, {
-            headers: { "Authorization": `Bearer ${token}` }
+        const respMat = await fetch(`${API_BASE_URL}/Matriculas/MiMatriculaActual`, { headers: { "Authorization": `Bearer ${token}` } });
+        if (!respMat.ok) { contenedor.innerHTML = `<div class="col-12 text-center text-muted py-5">Sin matrícula activa.</div>`; return; }
+        const matricula = await respMat.json();
+
+        const respHorario = await fetch(`${API_BASE_URL}/Horarios`, { headers: { "Authorization": `Bearer ${token}` } });
+        let aprovechamientoHorario = [];
+        let cursosNombres = [];
+        if (respHorario.ok) {
+            const dataHorario = await respHorario.json();
+            cursosNombres = [...new Set(dataHorario.map(h => h.curso))].sort();
+        }
+
+        const respAsist = await fetch(`${API_BASE_URL}/Asistencias/Alumno/${matricula.id}`, { headers: { "Authorization": `Bearer ${token}` } });
+        let listaAsistencias = [];
+        if (respAsist.ok) listaAsistencias = await respAsist.json();
+
+        cacheAsistencias = {};
+
+        cursosNombres.forEach(nombre => {
+            cacheAsistencias[nombre] = { presentes: 0, tardanzas: 0, faltas: 0, total: 0, historial: [] };
         });
 
-        if (!respMat.ok) {
-            contenedor.innerHTML = `<div class="col-12 text-center text-muted py-4">No tienes matrícula activa.</div>`;
+        listaAsistencias.forEach(item => {
+            const curso = item.curso || item.Curso || "Otros";
+            const estado = (item.estado || item.Estado || "").toUpperCase();
+            const fecha = item.fecha || item.Fecha;
+            const obs = item.observacion || item.Observacion;
+
+            if (!cacheAsistencias[curso]) cacheAsistencias[curso] = { presentes: 0, tardanzas: 0, faltas: 0, total: 0, historial: [] };
+
+            cacheAsistencias[curso].total++;
+            cacheAsistencias[curso].historial.push({ fecha, estado, obs });
+
+            if (["ASISTIO", "PRESENTE", "0"].includes(estado)) cacheAsistencias[curso].presentes++;
+            else if (["TARDANZA", "1"].includes(estado)) { cacheAsistencias[curso].presentes++; cacheAsistencias[curso].tardanzas++; }
+            else if (["FALTA", "FALTO", "2"].includes(estado)) cacheAsistencias[curso].faltas++;
+        });
+
+        const cursosFinales = Object.keys(cacheAsistencias);
+        if (cursosFinales.length === 0) {
+            contenedor.innerHTML = `<div class="col-12 text-center py-5"><p class="text-muted">No se encontraron cursos.</p></div>`;
             return;
         }
 
-        const matricula = await respMat.json();
+        let html = "";
+        cursosFinales.forEach(nombre => {
+            const data = cacheAsistencias[nombre];
 
-        const respAsist = await fetch(`${API_BASE_URL}/Asistencias/Alumno/${matricula.id}`, {
-            headers: { "Authorization": `Bearer ${token}` }
-        });
+            let riskClass = "risk-low";
+            let statusHtml = `<span class="text-success"><i class="dot dot-green me-2"></i>Estado Regular</span>`;
 
-        if (respAsist.ok) {
-            const lista = await respAsist.json();
-
-            if (lista.length === 0) {
-                contenedor.innerHTML = `
-                    <div class="col-12 text-center text-muted py-5">
-                        <i class="fa-solid fa-clipboard-check display-4 mb-3 opacity-25"></i>
-                        <p>Aún no hay registros.</p>
-                    </div>`;
-                return;
+            if (data.faltas >= 7) {
+                riskClass = "risk-high";
+                statusHtml = `<span class="text-danger"><i class="dot dot-red me-2"></i>Riesgo Académico</span>`;
+            } else if (data.faltas >= 4) {
+                riskClass = "risk-med";
+                statusHtml = `<span class="text-warning" style="color:#d97706 !important;"><i class="dot dot-yellow me-2"></i>Acumulación de Faltas</span>`;
             }
 
-            const resumen = {};
+            const nombreSafe = nombre.replace(/'/g, "\\'");
 
-            lista.forEach(item => {
-                const cursoNombre = item.curso || item.Curso || "Desconocido";
-                const estado = (item.estado || item.Estado || "").toUpperCase();
-                const obs = item.observacion || item.Observacion || "";
-                const fecha = item.fecha || item.Fecha || "";
+            html += `
+            <div class="col-md-6 col-lg-4 col-xl-3">
+                <div class="asistencia-card-clean ${riskClass}" onclick="abrirDetalleCurso('${nombreSafe}')">
+                    <div class="d-flex justify-content-between align-items-start mb-4">
+                        <h6 class="fw-bold text-dark mb-0 text-truncate" style="max-width: 85%;" title="${nombre}">${nombre}</h6>
+                        <i class="fa-solid fa-chevron-right text-muted small opacity-50"></i>
+                    </div>
 
-                if (!resumen[cursoNombre]) {
-                    resumen[cursoNombre] = {
-                        total: 0,
-                        presentes: 0,
-                        faltas: 0,
-                        tardanzas: 0,
-                        ultimaObservacion: "",
-                        ultimaFechaObs: ""
-                    };
-                }
-
-                resumen[cursoNombre].total++;
-
-                if (estado === "ASISTIO" || estado === "PRESENTE" || estado === "1") {
-                    resumen[cursoNombre].presentes++;
-                } else if (estado === "TARDANZA") {
-                    resumen[cursoNombre].presentes++;
-                    resumen[cursoNombre].tardanzas++;
-                } else {
-                    resumen[cursoNombre].faltas++;
-                }
-
-                if (obs.trim() !== "") {
-                    resumen[cursoNombre].ultimaObservacion = obs;
-                    resumen[cursoNombre].ultimaFechaObs = fecha;
-                }
-            });
-
-            let html = "";
-            for (const [curso, stats] of Object.entries(resumen)) {
-                const porcentaje = stats.total > 0
-                    ? Math.round((stats.presentes / stats.total) * 100)
-                    : 0;
-
-                let color = "success";
-                let texto = "Satisfactorio";
-                let icono = "fa-check-circle";
-
-                if (porcentaje < 70) {
-                    color = "danger";
-                    texto = "Crítico";
-                    icono = "fa-circle-xmark";
-                } else if (porcentaje < 85) {
-                    color = "warning";
-                    texto = "Regular";
-                    icono = "fa-triangle-exclamation";
-                }
-
-                let htmlObs = "";
-                if (stats.ultimaObservacion) {
-                    htmlObs = `
-                        <div class="mt-3 p-2 rounded bg-warning bg-opacity-10 border border-warning border-opacity-25">
-                            <div class="d-flex gap-2">
-                                <i class="fa-regular fa-comment-dots text-warning mt-1"></i>
-                                <div>
-                                    <span class="d-block text-uppercase fw-bold text-muted" style="font-size: 0.65rem;">
-                                        Nota del ${stats.ultimaFechaObs}:
-                                    </span>
-                                    <span class="d-block fst-italic text-dark small">
-                                        "${stats.ultimaObservacion}"
-                                    </span>
-                                </div>
-                            </div>
-                        </div>`;
-                }
-
-                html += `
-                <div class="col-md-6 col-lg-4">
-                    <div class="card border-0 shadow-sm h-100 hover-card">
-                        <div class="card-body">
-                            <div class="d-flex justify-content-between align-items-start mb-2">
-                                <h6 class="fw-bold text-dark mb-0 text-truncate" title="${curso}">${curso}</h6>
-                                <span class="h4 fw-bold mb-0 text-${color}">${porcentaje}%</span>
-                            </div>
-
-                            <div class="progress mb-3" style="height: 6px;">
-                                <div class="progress-bar bg-${color}" style="width: ${porcentaje}%"></div>
-                            </div>
-
-                            <div class="row text-center g-0 border rounded py-2 bg-light small mb-1">
-                                <div class="col border-end">
-                                    <span class="fw-bold d-block text-success">${stats.presentes}</span>
-                                    <span class="text-muted" style="font-size:0.7rem">Asist.</span>
-                                </div>
-                                <div class="col border-end">
-                                    <span class="fw-bold d-block text-danger">${stats.faltas}</span>
-                                    <span class="text-muted" style="font-size:0.7rem">Faltas</span>
-                                </div>
-                                <div class="col">
-                                    <span class="fw-bold d-block text-warning">${stats.tardanzas}</span>
-                                    <span class="text-muted" style="font-size:0.7rem">Tard.</span>
-                                </div>
-                            </div>
-
-                            ${htmlObs}
+                    <div class="kpi-grid">
+                        <div class="kpi-item">
+                            <span class="kpi-value" style="color: #10b981;">${data.presentes}</span>
+                            <span class="kpi-label">Asistencias</span>
                         </div>
-
-                        <div class="card-footer bg-white border-0 pt-0 text-center">
-                            <small class="text-${color} fw-bold text-uppercase" style="font-size: 0.7rem;">
-                                <i class="fa-solid ${icono} me-1"></i> ${texto}
-                            </small>
+                        <div class="kpi-item">
+                            <span class="kpi-value" style="color: #f59e0b;">${data.tardanzas}</span>
+                            <span class="kpi-label">Tardanzas</span>
+                        </div>
+                        <div class="kpi-item">
+                            <span class="kpi-value" style="color: #ef4444;">${data.faltas}</span>
+                            <span class="kpi-label">Faltas</span>
                         </div>
                     </div>
-                </div>`;
+
+                    <div class="status-indicator">
+                        ${statusHtml}
+                    </div>
+                </div>
+            </div>`;
+        });
+
+        contenedor.innerHTML = html;
+
+    } catch (error) {
+        console.error(error);
+        contenedor.innerHTML = `<div class="col-12 text-center text-danger">Error de conexión.</div>`;
+    }
+}
+
+function abrirDetalleCurso(nombreCurso) {
+    const data = cacheAsistencias[nombreCurso];
+    if (!data) return;
+
+    document.getElementById("lblModalCurso").innerText = nombreCurso;
+    const timeline = document.getElementById("timelineContenido");
+
+    const historialOrdenado = data.historial.sort((a, b) => new Date(b.fecha) - new Date(a.fecha));
+
+    if (historialOrdenado.length === 0) {
+        timeline.innerHTML = `<div class="text-center text-muted py-4"><i>No hay historial registrado.</i></div>`;
+    } else {
+        let htmlTime = `<div class="modal-timeline-container">`;
+
+        historialOrdenado.forEach(h => {
+            let markerClass = "marker-present";
+            let statusText = "Asistencia";
+            let statusColor = "text-dark";
+
+            if (["FALTA", "FALTO", "2"].includes(h.estado)) {
+                markerClass = "marker-absent"; statusText = "Inasistencia"; statusColor = "text-danger";
+            } else if (["TARDANZA", "1"].includes(h.estado)) {
+                markerClass = "marker-late"; statusText = "Tardanza"; statusColor = "text-warning";
+            } else if (["JUSTIFICADO", "3"].includes(h.estado)) {
+                markerClass = "marker-justified"; statusText = "Justificado"; statusColor = "text-primary";
             }
 
-            contenedor.innerHTML = html;
-        }
-    } catch (error) {
-        console.error("Error procesando asistencias:", error);
-        contenedor.innerHTML = `<div class="col-12 text-danger text-center">No se pudo cargar la información.</div>`;
+            const obsHtml = h.obs ? `<div class="event-obs"><i class="fa-regular fa-comment-dots me-1"></i>${h.obs}</div>` : "";
+
+            htmlTime += `
+            <div class="timeline-event">
+                <div class="timeline-marker ${markerClass}"></div>
+                <div class="event-date">${h.fecha.split('T')[0]}</div>
+                <div class="event-status fw-bold ${statusColor}">${statusText}</div>
+                ${obsHtml}
+            </div>`;
+        });
+
+        htmlTime += `</div>`;
+        timeline.innerHTML = htmlTime;
     }
+
+    new bootstrap.Modal(document.getElementById('modalDetalleAsistencia')).show();
 }

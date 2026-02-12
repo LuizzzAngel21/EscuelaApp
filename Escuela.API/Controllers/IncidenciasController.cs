@@ -1,5 +1,4 @@
 ﻿using Escuela.API.Dtos;
-using Escuela.API.Dtos;
 using Escuela.Core.Entities;
 using Escuela.Data;
 using Microsoft.AspNetCore.Authorization;
@@ -22,7 +21,9 @@ namespace Escuela.API.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<IncidenciaDto>>> GetIncidencias([FromQuery] int? estudianteId)
+        public async Task<ActionResult<IEnumerable<IncidenciaDto>>> GetIncidencias(
+            [FromQuery] int? estudianteId, 
+            [FromQuery] string? usuarioId)  
         {
             var userId = User.FindFirstValue("uid");
             var esAlumno = User.IsInRole("Estudiantil");
@@ -36,9 +37,26 @@ namespace Escuela.API.Controllers
             {
                 query = query.Where(i => i.Estudiante!.UsuarioId == userId);
             }
-            else if (esStaff && estudianteId.HasValue)
+            else if (esStaff)
             {
-                query = query.Where(i => i.EstudianteId == estudianteId);
+                if (estudianteId.HasValue)
+                {
+                    query = query.Where(i => i.EstudianteId == estudianteId.Value);
+                }
+                else if (!string.IsNullOrEmpty(usuarioId))
+                {
+                    var estudiante = await _context.Estudiantes
+                        .FirstOrDefaultAsync(e => e.UsuarioId == usuarioId);
+
+                    if (estudiante != null)
+                    {
+                        query = query.Where(i => i.EstudianteId == estudiante.Id);
+                    }
+                    else
+                    {
+                        return Ok(new List<IncidenciaDto>());
+                    }
+                }
             }
 
             var lista = await query
@@ -61,19 +79,46 @@ namespace Escuela.API.Controllers
 
         [HttpPost]
         [Authorize(Roles = "Docente,Administrativo,Psicologo,Academico")]
-        public async Task<IActionResult> Reportar(CrearIncidenciaDto dto)
+        public async Task<IActionResult> Reportar(ReportarIncidenciaHibridaDto dto)
         {
             var userId = User.FindFirstValue("uid");
-            var userName = User.Identity?.Name ?? "Staff";
+            string nombreReal = "Staff";
+            var docente = await _context.Docentes
+                .FirstOrDefaultAsync(d => d.UsuarioId == userId);
 
-            var estudiante = await _context.Estudiantes.FindAsync(dto.EstudianteId);
-            if (estudiante == null) return NotFound("Estudiante no encontrado.");
+            if (docente != null)
+            {
+                nombreReal = $"{docente.Nombres} {docente.Apellidos}";
+            }
+            else
+            {
+                var psicologo = await _context.Psicologos
+                    .FirstOrDefaultAsync(p => p.UsuarioId == userId);
+
+                if (psicologo != null)
+                {
+                    nombreReal = $"{psicologo.Nombres} {psicologo.Apellidos}";
+                }
+                else
+                {
+                    nombreReal = User.Identity?.Name ?? "Administrativo";
+                }
+            }
+
+            int? idFinal = dto.EstudianteId;
+            if ((idFinal == null || idFinal == 0) && !string.IsNullOrEmpty(dto.UsuarioId))
+            {
+                var est = await _context.Estudiantes.FirstOrDefaultAsync(e => e.UsuarioId == dto.UsuarioId);
+                if (est != null) idFinal = est.Id;
+            }
+
+            if (idFinal == null || idFinal == 0) return BadRequest("Estudiante no válido.");
 
             var incidencia = new Incidencia
             {
-                EstudianteId = dto.EstudianteId,
+                EstudianteId = idFinal.Value,
                 ReportadoPorId = userId,
-                NombreReportador = userName,
+                NombreReportador = nombreReal, 
                 Titulo = dto.Titulo,
                 Descripcion = dto.Descripcion,
                 Nivel = dto.Nivel,

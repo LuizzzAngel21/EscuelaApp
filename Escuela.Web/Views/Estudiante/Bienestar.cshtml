@@ -3,68 +3,76 @@
     Layout = "~/Views/Shared/_LayoutEstudiante.cshtml";
 }
 
-<div class="container-fluid py-4">
-    <div class="card bg-primary text-white border-0 shadow-lg mb-4">
-        <div class="card-body p-4 d-flex align-items-center">
-            <div class="me-4 d-none d-md-block">
-                <i class="fa-solid fa-hand-holding-heart fa-4x opacity-50"></i>
+<link rel="stylesheet" href="~/css/estudiante.css" />
+
+<div class="container-fluid p-0">
+
+    <div class="card banner-institucional border-0 shadow-sm mb-4 rounded-4 overflow-hidden">
+        <div class="card-body p-4 p-lg-5 d-flex align-items-center">
+            <div class="me-4 d-none d-md-block text-white opacity-75">
+                <i class="fa-solid fa-hand-holding-heart fa-4x"></i>
             </div>
-            <div>
-                <h2 class="fw-bold mb-1">Centro de Apoyo y Bienestar</h2>
-                <p class="mb-0 opacity-75">Tu salud emocional y académica es nuestra prioridad. Agenda citas y revisa tus recomendaciones.</p>
+            <div class="text-white">
+                <h2 class="fw-bold mb-2">Centro de Apoyo y Bienestar</h2>
+                <p class="mb-0 opacity-90" style="font-weight: 300;">
+                    Tu salud emocional y académica es nuestra prioridad. Agenda citas psicológicas y revisa tu seguimiento.
+                </p>
             </div>
         </div>
     </div>
 
     <ul class="nav nav-tabs mb-4 border-0" id="bienestarTabs" role="tablist">
         <li class="nav-item">
-            <button class="nav-link active fw-bold px-4" id="citas-tab" data-bs-toggle="tab" data-bs-target="#tab-citas" type="button">
+            <button class="nav-link active fw-bold px-4 border-0 border-bottom border-3" id="citas-tab" data-bs-toggle="tab" data-bs-target="#tab-citas" type="button">
                 <i class="fa-solid fa-calendar-check me-2"></i>Gestión de Citas
             </button>
         </li>
         <li class="nav-item">
-            <button class="nav-link fw-bold px-4" id="expediente-tab" data-bs-toggle="tab" data-bs-target="#tab-expediente" type="button">
+            <button class="nav-link fw-bold px-4 border-0 border-bottom border-3" id="expediente-tab" data-bs-toggle="tab" data-bs-target="#tab-expediente" type="button">
                 <i class="fa-solid fa-clipboard-list me-2"></i>Mi Expediente
             </button>
         </li>
     </ul>
 
     <div class="tab-content" id="bienestarContent">
+
         <div class="tab-pane fade show active" id="tab-citas">
             <div class="row g-4">
                 <div class="col-lg-4">
-                    <div class="card border-0 shadow-sm">
-                        <div class="card-header bg-white py-3">
-                            <h6 class="fw-bold mb-0 text-primary">Nueva Solicitud</h6>
+                    <div class="card border-0 shadow-sm rounded-4">
+                        <div class="card-header bg-white py-3 border-bottom">
+                            <h6 class="fw-bold mb-0 text-primary">
+                                <i class="fa-solid fa-pen-to-square me-2"></i>Nueva Solicitud
+                            </h6>
                         </div>
-                        <div class="card-body">
+                        <div class="card-body p-4">
                             <form id="formCita">
                                 <div class="mb-3">
-                                    <label class="form-label small fw-bold">Especialista</label>
-                                    <select id="slcDestinatario" class="form-select" required>
+                                    <label class="form-label small fw-bold text-muted text-uppercase">Especialista</label>
+                                    <select id="slcDestinatario" class="form-select bg-light border-0" required>
                                         <option value="">Cargando especialistas...</option>
                                     </select>
                                 </div>
                                 <div class="mb-3">
-                                    <label class="form-label small fw-bold">Motivo</label>
-                                    <textarea id="txtMotivo" class="form-control" rows="3" maxlength="250" required></textarea>
+                                    <label class="form-label small fw-bold text-muted text-uppercase">Motivo de consulta</label>
+                                    <textarea id="txtMotivo" class="form-control bg-light border-0" rows="3" maxlength="250" placeholder="Describe brevemente..." required></textarea>
                                 </div>
                                 <div class="row g-2 mb-3">
                                     <div class="col-7">
-                                        <label class="form-label small fw-bold">Fecha</label>
-                                        <input type="date" id="txtFecha" class="form-control" required>
+                                        <label class="form-label small fw-bold text-muted text-uppercase">Fecha</label>
+                                        <input type="date" id="txtFecha" class="form-control bg-light border-0" required>
                                     </div>
                                     <div class="col-5">
-                                        <label class="form-label small fw-bold">Hora</label>
-                                        <input type="time" id="txtHora" class="form-control" min="08:00" max="16:00" required>
+                                        <label class="form-label small fw-bold text-muted text-uppercase">Hora</label>
+                                        <input type="time" id="txtHora" class="form-control bg-light border-0" min="08:00" max="16:00" required>
                                     </div>
                                 </div>
                                 <div class="form-check form-switch mb-4">
                                     <input class="form-check-input" type="checkbox" id="chkVirtual">
-                                    <label class="form-check-label small" for="chkVirtual">¿Deseas que sea Virtual?</label>
+                                    <label class="form-check-label small text-muted" for="chkVirtual">Solicitar atención Virtual (Meet/Zoom)</label>
                                 </div>
-                                <button type="submit" class="btn btn-primary w-100 rounded-pill shadow-sm">
-                                    <i class="fa-solid fa-paper-plane me-2"></i>Enviar Solicitud
+                                <button type="submit" class="btn btn-primary w-100 rounded-pill py-2 fw-bold shadow-sm">
+                                    <i class="fa-solid fa-paper-plane me-2"></i>Agendar Cita
                                 </button>
                             </form>
                         </div>
@@ -72,7 +80,14 @@
                 </div>
 
                 <div class="col-lg-8">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h6 class="fw-bold text-dark mb-0">Próximas Citas</h6>
+                        <small class="text-muted"><i class="fa-solid fa-history me-1"></i>Historial reciente</small>
+                    </div>
                     <div id="listaCitas" class="row g-3">
+                        <div class="col-12 text-center py-5">
+                            <div class="spinner-border text-primary" role="status"></div>
+                        </div>
                     </div>
                 </div>
             </div>

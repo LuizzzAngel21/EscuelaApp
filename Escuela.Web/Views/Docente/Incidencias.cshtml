@@ -1,0 +1,125 @@
+﻿@{
+    ViewData["Title"] = "Gestión de Incidencias";
+    Layout = "~/Views/Shared/_LayoutDocente.cshtml";
+}
+
+<div class="container-fluid py-4">
+    <div class="mb-4">
+        <h2 class="fw-bold text-dark mb-1">Gestión de Incidencias</h2>
+        <p class="text-muted mb-0">Reporte y seguimiento conductual de estudiantes.</p>
+    </div>
+
+    <div class="row g-4 h-100">
+
+        <div class="col-lg-4 col-xl-3">
+            <div class="card border-0 shadow-sm h-100" style="min-height: 700px; max-height: 85vh; display: flex; flex-direction: column;">
+
+                <div class="card-header bg-white border-bottom p-3">
+                    <label class="small fw-bold text-muted mb-2">SELECCIONAR ESTUDIANTE</label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-light border-end-0 text-muted">
+                            <i class="fa-solid fa-magnifying-glass"></i>
+                        </span>
+                        <input type="text" id="txtBuscarEstudiante" class="form-control bg-light border-start-0" placeholder="Buscar por nombre..." autocomplete="off">
+                    </div>
+                </div>
+
+                <div class="card-body p-0" style="overflow-y: auto; flex: 1;">
+                    <div id="listaEstudiantes" class="list-group list-group-flush">
+                        <div class="text-center py-5">
+                            <div class="spinner-border text-primary spinner-border-sm" role="status"></div>
+                            <p class="mt-2 text-muted small">Cargando nómina...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-8 col-xl-9">
+            <div id="panelVacio" class="card border-0 shadow-sm h-100 d-flex align-items-center justify-content-center text-center p-5">
+                <div class="opacity-50">
+                    <div class="icon-box-primary rounded-circle mx-auto mb-3" style="width: 80px; height: 80px;">
+                        <i class="fa-regular fa-id-card fs-1"></i>
+                    </div>
+                    <h5 class="fw-bold text-dark">Ningún estudiante seleccionado</h5>
+                    <p class="text-muted">Selecciona un alumno de la lista para ver su historial<br>o reportar una nueva incidencia.</p>
+                </div>
+            </div>
+
+            <div id="panelHistorial" class="d-none h-100">
+                <div class="card border-0 shadow-sm h-100">
+
+                    <div class="card-header bg-white border-bottom p-4 d-flex justify-content-between align-items-center">
+                        <div class="d-flex align-items-center">
+                            <div class="avatar-circle me-3 bg-primary text-white fs-4" style="width: 50px; height: 50px;">
+                                <span id="lblInicial">?</span>
+                            </div>
+                            <div>
+                                <h4 class="fw-bold text-dark mb-0" id="lblNombreEstudiante">Nombre Estudiante</h4>
+                                <span class="badge bg-light text-muted border mt-1" id="lblGradoEstudiante">Sección</span>
+                            </div>
+                        </div>
+                        <button class="btn btn-primary rounded-pill px-4 py-2 fw-bold shadow-sm" onclick="abrirModalReporte()">
+                            <i class="fa-solid fa-triangle-exclamation me-2"></i>Nueva Incidencia
+                        </button>
+                    </div>
+
+                    <div class="card-body p-4 bg-light bg-opacity-25" style="overflow-y: auto;">
+                        <h6 class="fw-bold text-muted text-uppercase small mb-4 ms-2">Línea de Tiempo Disciplinaria</h6>
+                        <div id="timelineContainer" class="timeline-vertical ms-2">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalReporte" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title fw-bold"><i class="fa-solid fa-file-pen me-2"></i>Reportar Incidencia</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body p-4">
+                <form id="formIncidencia">
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold text-muted">TÍTULO DEL SUCESO</label>
+                        <input type="text" class="form-control fw-bold" id="txtTitulo" placeholder="Ej: Falta de respeto en clase..." required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold text-muted">NIVEL DE GRAVEDAD</label>
+                        <select class="form-select" id="slcNivel" required>
+                            <option value="">Seleccione gravedad...</option>
+                            <option value="Leve">Leve (Amonestación verbal)</option>
+                            <option value="Grave">Grave (Reporte escrito)</option>
+                            <option value="Muy Grave">Muy Grave (Dirección/Suspensión)</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold text-muted">DESCRIPCIÓN DETALLADA</label>
+                        <textarea class="form-control" id="txtDescripcion" rows="5" placeholder="Describa los hechos objetivamente..." required></textarea>
+                    </div>
+
+                    <div class="alert alert-light border d-flex align-items-start small text-muted">
+                        <i class="fa-solid fa-circle-info me-2 mt-1 text-primary"></i>
+                        <div>Este reporte será visible para el departamento de psicología y la dirección académica de forma inmediata.</div>
+                    </div>
+
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-danger rounded-pill py-2 fw-bold">
+                            Registrar Incidencia
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/js/docente/incidencias.js"></script>
+}

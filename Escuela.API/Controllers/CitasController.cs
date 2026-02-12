@@ -139,9 +139,6 @@ namespace Escuela.API.Controllers
             return Ok(new { mensaje = "Estado actualizado." });
         }
 
-
-
-
         private async Task<string?> ValidarDisponibilidad(string staffId, DateTime fecha)
         {
             if (fecha.Hour < 8 || fecha.Hour > 16) return "Atención de 08:00 a 16:00.";
@@ -191,10 +188,6 @@ namespace Escuela.API.Controllers
             DayOfWeek.Friday => "Viernes",
             _ => "FinDeSemana"
         };
-
-
-
-
         public enum EstadoCita { Pendiente = 0, Confirmada = 1, Rechazada = 2, Realizada = 3 }
     }
 }

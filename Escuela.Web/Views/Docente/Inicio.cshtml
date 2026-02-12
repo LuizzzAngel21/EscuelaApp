@@ -1,0 +1,109 @@
+﻿@{
+    ViewData["Title"] = "Panel Docente";
+    Layout = "~/Views/Shared/_LayoutDocente.cshtml";
+}
+
+<div class="container-fluid py-4">
+
+    <div class="d-flex justify-content-between align-items-end mb-4">
+        <div>
+            <h2 class="fw-bold text-dark mb-0">Hola, <span id="lblDocenteNombre">Profesor</span></h2>
+            <p class="text-muted mb-0 small">Panel de gestión académica</p>
+        </div>
+        <div class="text-end">
+            <span class="badge bg-white text-secondary border px-3 py-2 rounded-pill shadow-sm">
+                <i class="fa-regular fa-calendar me-2"></i> <span id="lblFechaHoy">...</span>
+            </span>
+        </div>
+    </div>
+
+    <div class="row g-3 mb-4">
+        <div class="col-md-6 col-lg-4">
+            <div class="card card-hover border-0 shadow-sm h-100">
+                <div class="card-body p-3 d-flex align-items-center">
+                    <div class="icon-box-primary rounded-3 me-3 d-flex align-items-center justify-content-center" style="width:50px; height:50px;">
+                        <i class="fa-solid fa-book-open fs-4"></i>
+                    </div>
+                    <div>
+                        <small class="text-muted text-uppercase fw-bold" style="font-size: 0.7rem;">Mis Cursos</small>
+                        <h3 class="fw-bold text-dark mb-0" id="txtTotalCursos">0</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6 col-lg-4">
+            <div class="card card-hover border-0 shadow-sm h-100">
+                <div class="card-body p-3 d-flex align-items-center">
+                    <div class="icon-box-success rounded-3 me-3 d-flex align-items-center justify-content-center" style="width:50px; height:50px;">
+                        <i class="fa-regular fa-clock fs-4"></i>
+                    </div>
+                    <div>
+                        <small class="text-muted text-uppercase fw-bold" style="font-size: 0.7rem;">Clases de Hoy</small>
+                        <h3 class="fw-bold text-dark mb-0" id="txtClasesHoy">0</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-header bg-white py-3 border-bottom">
+                    <h6 class="fw-bold text-primary mb-0">
+                        <i class="fa-solid fa-list-ul me-2"></i>Agenda Académica
+                    </h6>
+                </div>
+                <div class="card-body bg-light bg-opacity-10">
+                    <div id="contenedor-agenda" class="mt-2">
+                        <div class="text-center py-5">
+                            <div class="spinner-border text-primary spinner-border-sm" role="status"></div>
+                            <p class="text-muted mt-2 small">Cargando horario...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-header bg-white py-3 border-bottom">
+                    <h6 class="fw-bold text-dark mb-0">
+                        <i class="fa-regular fa-bell me-2"></i>Avisos Recientes
+                    </h6>
+                </div>
+                <div class="card-body p-0">
+                    <ul class="list-group list-group-flush" id="lista-comunicados">
+                        <li class="list-group-item text-center py-4 text-muted small">Cargando...</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalComunicado" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg">
+            <div class="modal-header bg-primary text-white border-0">
+                <h5 class="modal-title fw-bold" id="modalTitulo">Aviso</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-4">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <span class="badge bg-secondary" id="modalAutor">Autor</span>
+                    <small class="text-muted" id="modalFecha">Fecha</small>
+                </div>
+                <div class="text-dark" style="white-space: pre-wrap; line-height: 1.6;" id="modalContenido">...</div>
+            </div>
+            <div class="modal-footer border-0 bg-light">
+                <button type="button" class="btn btn-secondary btn-sm px-4 rounded-pill" data-bs-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/js/docente/inicio.js"></script>
+}

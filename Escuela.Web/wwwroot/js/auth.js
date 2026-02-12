@@ -39,15 +39,15 @@
                     break;
 
                 case "Academico":
-                    window.location.href = "/Docente/Dashboard";
+                    window.location.href = "/Docente/Inicio";
                     break;
 
                 case "Administrativo":
-                    window.location.href = "/Admin/Dashboard";
+                    window.location.href = "/Admin/Inicio";
                     break;
 
                 case "Psicologo":
-                    window.location.href = "/Bienestar/Inicio";
+                    window.location.href = "/Psicologo/Inicio";
                     break;
 
                 default:

@@ -242,7 +242,7 @@ namespace Escuela.API.Controllers
                         {
                             col.Item().Text("COLEGIO PREUNIVERSITARIO - ALFRED NOBEL").Bold().FontSize(16).FontColor(Colors.Blue.Medium);
                             col.Item().Text("R.D. N° 1234-2025-UGEL04").FontSize(10);
-                            col.Item().Text("Av. Universitaria 123, Lima").FontSize(10);
+                            col.Item().Text(" no sé la direccion :c, Lima").FontSize(10);
                         });
                         row.ConstantItem(100).AlignRight().Text($"Ficha N° {matricula.Id:D6}").SemiBold();
                     });

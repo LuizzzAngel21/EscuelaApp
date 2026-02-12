@@ -25,7 +25,11 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="Migrations\" />
+    <Folder Include="uploads\" />
     <Folder Include="wwwroot\documentos\" />
+    <Folder Include="wwwroot\entregas\" />
+    <Folder Include="wwwroot\materiales\" />
   </ItemGroup>
 
 </Project>

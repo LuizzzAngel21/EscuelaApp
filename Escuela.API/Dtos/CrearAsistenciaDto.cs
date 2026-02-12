@@ -17,5 +17,7 @@ namespace Escuela.API.Dtos
 
         [StringLength(200, ErrorMessage = "La observación no puede superar los 200 caracteres.")]
         public string? Observacion { get; set; }
+
+        public DateTime? Fecha { get; set; }
     }
 }

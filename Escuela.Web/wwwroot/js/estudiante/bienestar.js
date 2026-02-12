@@ -40,8 +40,6 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 });
 
-// --- FUNCIONES DE CARGA ---
-
 async function cargarCitas() {
     const container = document.getElementById("listaCitas");
     const tokenLocal = localStorage.getItem("tokenEscuela");
@@ -55,25 +53,32 @@ async function cargarCitas() {
         if (response.ok) {
             const citas = await response.json();
             if (citas.length === 0) {
-                container.innerHTML = '<div class="col-12 text-center py-4 text-muted">No hay citas agendadas.</div>';
+                container.innerHTML = '<div class="col-12 text-center py-5 text-muted small">No tienes citas agendadas próximamente.</div>';
                 return;
             }
 
             container.innerHTML = citas.map(c => {
                 const color = c.estado === "Confirmada" ? "success" : c.estado === "Pendiente" ? "warning" : "danger";
+                const iconoModalidad = c.modalidad === 'Virtual' ? 'fa-video' : 'fa-location-dot';
+                const colorModalidad = c.modalidad === 'Virtual' ? 'text-primary' : 'text-danger';
+
                 return `
                 <div class="col-md-6 mb-3">
                     <div class="card border-0 shadow-sm border-start border-4 border-${color} h-100">
                         <div class="card-body">
-                            <div class="d-flex justify-content-between mb-2">
-                                <span class="badge bg-${color}">${c.estado}</span>
-                                <small class="text-muted">${c.fecha} - ${c.hora}</small>
+                            <div class="d-flex justify-content-between mb-2 align-items-center">
+                                <span class="badge bg-${color} bg-opacity-10 text-${color} border border-${color} border-opacity-25">${c.estado}</span>
+                                <small class="text-muted fw-bold" style="font-size:0.75rem;">${c.fecha} - ${c.hora}</small>
                             </div>
-                            <h6 class="fw-bold mb-0">${c.nombreOrganizador}</h6>
-                            <small class="text-muted">${c.cargo}</small>
-                            <p class="small bg-light p-2 my-2 rounded">"${c.motivo}"</p>
-                            <div class="small">
-                                <i class="fa-solid ${c.modalidad === 'Virtual' ? 'fa-video text-primary' : 'fa-location-dot text-danger'} me-1"></i>
+                            <h6 class="fw-bold mb-0 text-dark">${c.nombreOrganizador}</h6>
+                            <small class="text-muted d-block mb-2">${c.cargo}</small>
+                            
+                            <div class="bg-light p-2 rounded small text-secondary fst-italic mb-3">
+                                "${c.motivo}"
+                            </div>
+                            
+                            <div class="small fw-medium text-dark d-flex align-items-center">
+                                <i class="fa-solid ${iconoModalidad} ${colorModalidad} me-2"></i>
                                 ${c.linkODireccion}
                             </div>
                         </div>
@@ -118,7 +123,7 @@ async function cargarExpedientes(estudianteId) {
         if (response.ok) {
             const data = await response.json();
             if (data.length === 0) {
-                container.innerHTML = `<p class="text-center p-5 text-muted">No hay registros para el ID ${estudianteId}</p>`;
+                container.innerHTML = `<p class="text-center p-5 text-muted small">No hay historial clínico registrado.</p>`;
                 return;
             }
 
@@ -126,17 +131,21 @@ async function cargarExpedientes(estudianteId) {
                 <div class="col-md-10 mb-4">
                     <div class="card border-0 shadow-sm">
                         <div class="card-body p-4">
-                            <div class="d-flex justify-content-between mb-3">
+                            <div class="d-flex justify-content-between mb-3 align-items-center">
                                 <h5 class="fw-bold text-primary mb-0">${ex.titulo}</h5>
-                                <span class="badge bg-light text-dark border">${ex.fecha}</span>
+                                <span class="badge bg-light text-muted border fw-normal">
+                                    <i class="fa-regular fa-calendar me-1"></i>${ex.fecha}
+                                </span>
                             </div>
                             <p class="text-secondary small mb-3">${ex.descripcion}</p>
-                            <div class="p-3 border-start border-4 border-success" style="background-color: #f0fdf4;">
-                                <h6 class="fw-bold text-success small mb-2">RECOMENDACIONES:</h6>
+                            
+                            <div class="p-3 border-start border-4 border-success rounded-end" style="background-color: #f0fdf4;">
+                                <h6 class="fw-bold text-success small mb-2"><i class="fa-solid fa-check-circle me-1"></i>RECOMENDACIONES</h6>
                                 <p class="mb-0 text-dark small">${ex.recomendaciones}</p>
                             </div>
-                            <div class="mt-3 text-end">
-                                <small class="text-muted">Especialista: <strong>${ex.nombrePsicologo}</strong></small>
+                            
+                            <div class="mt-3 text-end border-top pt-2">
+                                <small class="text-muted">Atendido por: <strong class="text-dark">${ex.nombrePsicologo}</strong></small>
                             </div>
                         </div>
                     </div>
@@ -147,8 +156,12 @@ async function cargarExpedientes(estudianteId) {
 
 async function enviarSolicitudCita(form) {
     const tokenLocal = localStorage.getItem("tokenEscuela");
+
+    const destinatario = document.getElementById("slcDestinatario").value;
+    if (!destinatario) { alert("Seleccione un especialista"); return; }
+
     const dto = {
-        destinatarioId: document.getElementById("slcDestinatario").value,
+        destinatarioId: destinatario,
         motivo: document.getElementById("txtMotivo").value,
         fechaHora: `${document.getElementById("txtFecha").value}T${document.getElementById("txtHora").value}:00`,
         esVirtual: document.getElementById("chkVirtual").checked
@@ -166,7 +179,7 @@ async function enviarSolicitudCita(form) {
 
         const res = await response.json();
         if (response.ok) {
-            alert(res.mensaje);
+            alert(res.mensaje || "Solicitud enviada");
             form.reset();
             cargarCitas();
         } else {

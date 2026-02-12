@@ -67,5 +67,18 @@ namespace Escuela.API.Controllers
 
             return CreatedAtAction(nameof(GetSecciones), new { id = respuesta.Id }, respuesta);
         }
+
+
+        [HttpGet("Grado/{gradoId}")]
+        public async Task<ActionResult<IEnumerable<object>>> GetSeccionesPorGrado(int gradoId)
+        {
+            var secciones = await _context.Secciones
+                .Where(s => s.GradoId == gradoId)
+                .Select(s => new { s.Id, s.Nombre }) 
+                .OrderBy(s => s.Nombre)
+                .ToListAsync();
+
+            return Ok(secciones);
+        }
     }
 }

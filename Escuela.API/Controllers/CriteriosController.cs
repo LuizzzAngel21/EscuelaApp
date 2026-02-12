@@ -25,12 +25,15 @@ namespace Escuela.API.Controllers
             var criterios = await _context.CriteriosEvaluacion
                 .Include(c => c.Curso)
                 .Where(c => c.CursoId == cursoId)
+                .OrderBy(c => c.NumeroPeriodo)
+                .ThenBy(c => c.Nombre)
                 .Select(c => new CriterioDto
                 {
                     Id = c.Id,
                     Nombre = c.Nombre,
                     Peso = c.Peso,
-                    Curso = c.Curso != null ? c.Curso.Nombre : "N/A"
+                    Curso = c.Curso != null ? c.Curso.Nombre : "N/A",
+                    NumeroPeriodo = c.NumeroPeriodo
                 })
                 .ToListAsync();
 
@@ -42,11 +45,16 @@ namespace Escuela.API.Controllers
         {
             var existeCurso = await _context.Cursos.AnyAsync(c => c.Id == dto.CursoId);
             if (!existeCurso) return BadRequest("El curso no existe.");
+
+            if (dto.NumeroPeriodo < 1 || dto.NumeroPeriodo > 4)
+                return BadRequest("El periodo debe ser entre 1 y 4.");
+
             var nuevoCriterio = new CriterioEvaluacion
             {
                 Nombre = dto.Nombre,
                 Peso = dto.Peso,
-                CursoId = dto.CursoId
+                CursoId = dto.CursoId,
+                NumeroPeriodo = dto.NumeroPeriodo
             };
 
             _context.CriteriosEvaluacion.Add(nuevoCriterio);

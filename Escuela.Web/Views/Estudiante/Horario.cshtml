@@ -7,64 +7,98 @@
 
 <div class="container-fluid py-4">
 
-    <div class="d-flex justify-content-between align-items-center mb-4">
+    <div class="d-flex justify-content-between align-items-center mb-5">
         <div>
-            <h2 class="fw-bold text-dark mb-1">Agenda Académica</h2>
-            <p class="text-muted mb-0">Gestión de tiempo y control de cumplimiento.</p>
+            <h2 class="fw-bold text-dark mb-1" style="letter-spacing: -0.5px;">Agenda Académica</h2>
+            <p class="text-muted mb-0">Horario de clases y reporte de cumplimiento.</p>
         </div>
         <div class="d-none d-md-block">
-            <span class="badge bg-white text-secondary border px-3 py-2 rounded-pill shadow-sm">
-                <i class="fa-regular fa-calendar-check me-2"></i>Periodo Activo
+            <span class="badge badge-clean">
+                <i class="fa-regular fa-calendar me-2"></i>Periodo Activo 2026-I
             </span>
         </div>
     </div>
 
-    <div class="card border-0 shadow-sm mb-5 overflow-hidden">
-        <div class="card-header bg-white py-3 border-bottom">
-            <h6 class="fw-bold text-primary mb-0">
-                <i class="fa-solid fa-clock me-2"></i>Horario de Clases
-            </h6>
-        </div>
-        <div class="card-body p-0">
-            <div class="row g-0">
-                <div class="col-md col-dia">
-                    <div class="p-2 header-dia text-center fw-bold text-uppercase">Lunes</div>
-                    <div id="col-Lunes" class="p-2 min-vh-30"></div>
-                </div>
-                <div class="col-md col-dia">
-                    <div class="p-2 header-dia text-center fw-bold text-uppercase">Martes</div>
-                    <div id="col-Martes" class="p-2 min-vh-30"></div>
-                </div>
-                <div class="col-md col-dia">
-                    <div class="p-2 header-dia text-center fw-bold text-uppercase">Miércoles</div>
-                    <div id="col-Miercoles" class="p-2 min-vh-30"></div>
-                </div>
-                <div class="col-md col-dia">
-                    <div class="p-2 header-dia text-center fw-bold text-uppercase">Jueves</div>
-                    <div id="col-Jueves" class="p-2 min-vh-30"></div>
-                </div>
-                <div class="col-md col-dia">
-                    <div class="p-2 header-dia text-center fw-bold text-uppercase">Viernes</div>
-                    <div id="col-Viernes" class="p-2 min-vh-30"></div>
-                </div>
+    <div class="mb-5">
+        <h5 class="fw-bold text-dark mb-3">Horario Semanal</h5>
+
+        <div class="horario-container">
+            <div class="table-responsive">
+                <table class="table-horario">
+                    <thead>
+                        <tr>
+                            <th style="width: 80px;">Hora</th>
+                            <th>Lunes</th>
+                            <th>Martes</th>
+                            <th>Miércoles</th>
+                            <th>Jueves</th>
+                            <th>Viernes</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tablaHorarioBody">
+                        <tr>
+                            <td colspan="6" class="text-center py-5 text-muted small">
+                                <div class="spinner-border spinner-border-sm text-primary mb-2"></div>
+                                <div>Cargando distribución horaria...</div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>
 
     <div class="row">
-        <div class="col-12 mb-3">
-            <h4 class="fw-bold text-dark border-start border-4 border-primary ps-3">Reporte de Asistencia</h4>
-            <p class="text-muted small ps-3">Desglose de cumplimiento por asignatura.</p>
+        <div class="col-12 mb-4">
+            <div class="d-flex justify-content-between align-items-end mb-3">
+                <div>
+                    <h5 class="fw-bold text-dark mb-1">Monitor de Asistencia</h5>
+                    <p class="text-muted small mb-0">Haz clic en un curso para ver el historial.</p>
+                </div>
+            </div>
+
+            <div class="alert bg-white border shadow-sm d-flex align-items-center p-3" role="alert" style="border-left: 4px solid var(--color-primary) !important; border-radius: 8px;">
+                <div class="me-3 d-flex align-items-center justify-content-center bg-light rounded-circle" style="width: 40px; height: 40px;">
+                    <i class="fa-solid fa-circle-exclamation text-primary"></i>
+                </div>
+                <div>
+                    <h6 class="fw-bold text-dark mb-0" style="font-size: 0.85rem;">Política de Inasistencias</h6>
+                    <small class="text-muted">
+                        Recuerda que acumular <strong>8 faltas injustificadas</strong> en una asignatura resulta en desaprobación automática (DPI).
+                    </small>
+                </div>
+            </div>
         </div>
 
         <div id="contenedorAsistencias" class="row g-4">
             <div class="col-12 text-center py-5">
                 <div class="spinner-border text-primary" role="status"></div>
-                <p class="mt-2 text-muted small">Calculando métricas de asistencia...</p>
+                <p class="mt-2 text-muted small">Sincronizando registros...</p>
             </div>
         </div>
     </div>
 
+</div>
+
+<div class="modal fade" id="modalDetalleAsistencia" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div>
+                    <h5 class="modal-title fw-bold text-dark" id="lblModalCurso">Curso</h5>
+                    <p class="mb-0 text-muted small">Historial de incidencias</p>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body p-4">
+                <div id="timelineContenido">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-light text-muted border px-4" data-bs-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
+    </div>
 </div>
 
 @section Scripts {

@@ -26,29 +26,34 @@ namespace Escuela.API.Controllers
         [Authorize(Roles = "Academico,Administrativo")]
         public async Task<ActionResult<IEnumerable<EntregaDto>>> GetEntregasPorTarea(int tareaId)
         {
-            var entregas = await _context.Entregas
+            var todasEntregas = await _context.Entregas
                 .Include(e => e.Estudiante)
                 .Where(e => e.TareaId == tareaId)
+                .ToListAsync();
+
+            var entregasFiltradas = todasEntregas
+                .GroupBy(e => e.EstudianteId)
+                .Select(g => g.OrderByDescending(e => e.FechaEnvio).First())
                 .Select(e => new EntregaDto
                 {
                     Id = e.Id,
                     EstudianteNombre = e.Estudiante != null
                         ? $"{e.Estudiante.Nombres} {e.Estudiante.Apellidos}"
                         : "Estudiante Desconocido",
-                    FechaEnvio = e.FechaEnvio.ToShortDateString(),
+                    FechaEnvio = e.FechaEnvio.ToString("dd/MM/yyyy HH:mm"),
                     UrlArchivo = $"{Request.Scheme}://{Request.Host}/{e.RutaArchivo}",
                     Calificacion = e.Calificacion,
                     Comentarios = e.ComentariosDocente
                 })
-                .ToListAsync();
+                .ToList();
 
-            return Ok(entregas);
+            return Ok(entregasFiltradas);
         }
 
         [HttpPost("Subir")]
         [Authorize(Roles = "Estudiantil")]
-        [DisableRequestSizeLimit] 
-        [Consumes("multipart/form-data")] 
+        [DisableRequestSizeLimit]
+        [Consumes("multipart/form-data")]
         public async Task<ActionResult> SubirEntrega([FromForm] SubirEntregaDto dto)
         {
             Console.WriteLine("--- INTENTO DE SUBIDA ---");
@@ -56,12 +61,7 @@ namespace Escuela.API.Controllers
             try
             {
                 if (dto.Archivo == null || dto.Archivo.Length == 0)
-                {
-                    Console.WriteLine("Error: El archivo llegó nulo.");
                     return BadRequest("Debes subir un archivo.");
-                }
-
-                Console.WriteLine($"Archivo: {dto.Archivo.FileName} - Tamaño: {dto.Archivo.Length}");
 
                 var userId = User.FindFirstValue("uid");
                 var estudiante = await _context.Estudiantes.FirstOrDefaultAsync(e => e.UsuarioId == userId);
@@ -94,7 +94,6 @@ namespace Escuela.API.Controllers
                 _context.Entregas.Add(entrega);
                 await _context.SaveChangesAsync();
 
-                Console.WriteLine("Guardado en la base de datos");
                 return Ok(new { mensaje = "Tarea entregada correctamente" });
             }
             catch (Exception ex)
@@ -103,7 +102,6 @@ namespace Escuela.API.Controllers
                 return StatusCode(500, $"Error interno: {ex.Message}");
             }
         }
-
 
         [HttpGet("MisEntregas/{tareaId}")]
         [Authorize(Roles = "Estudiantil")]
@@ -121,7 +119,7 @@ namespace Escuela.API.Controllers
                 {
                     Id = e.Id,
                     EstudianteNombre = "Yo",
-                    FechaEnvio = e.FechaEnvio.ToString("dd/MM/yyyy HH:mm"), 
+                    FechaEnvio = e.FechaEnvio.ToString("dd/MM/yyyy HH:mm"),
                     UrlArchivo = $"{Request.Scheme}://{Request.Host}/{e.RutaArchivo}",
                     Calificacion = e.Calificacion,
                     Comentarios = e.ComentariosDocente
@@ -130,7 +128,6 @@ namespace Escuela.API.Controllers
 
             return Ok(entregas);
         }
-
 
         [HttpPut("Calificar/{id}")]
         [Authorize(Roles = "Academico")]

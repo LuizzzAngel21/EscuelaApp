@@ -3,19 +3,25 @@
     Layout = "~/Views/Shared/_LayoutEstudiante.cshtml";
 }
 
+<input type="hidden" id="hdnCursoId" value="@Context.Request.Query["cursoId"]" />
+
 <div class="container-fluid p-0">
-    <div class="card border-0 shadow-sm mb-4 overflow-hidden">
-        <div class="card-body p-4 bg-primary text-white position-relative" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
-            <div class="d-flex justify-content-between align-items-center position-relative z-1">
+
+    <div class="card border-0 shadow-sm mb-4" style="border-radius: 0 0 16px 16px;">
+        <div class="card-body p-4 p-lg-5 bg-white border-bottom">
+            <div class="d-flex justify-content-between align-items-start">
                 <div>
-                    <a href="/Estudiante/Cursos" class="text-white text-decoration-none small mb-2 d-inline-block opacity-75 hover-opacity-100">
-                        <i class="fa-solid fa-arrow-left me-1"></i> Volver a mis cursos
+                    <a href="/Estudiante/Cursos" class="text-muted text-decoration-none small fw-bold text-uppercase mb-2 d-inline-block">
+                        <i class="fa-solid fa-arrow-left me-1"></i> Mis Cursos
                     </a>
-                    <h2 class="fw-bold mb-0" id="lblNombreCurso">Cargando curso...</h2>
-                    <p class="mb-0 opacity-75" id="lblNombreDocente">...</p>
-                </div>
-                <div class="d-none d-md-block">
-                    <i class="fa-solid fa-graduation-cap display-1 opacity-25"></i>
+                    <h2 class="fw-bold text-dark mb-1" style="letter-spacing: -0.5px;" id="lblNombreCurso">Cargando curso...</h2>
+
+                    <div class="d-flex align-items-center text-secondary mt-3">
+                        <div class="avatar-circle me-2" style="width: 28px; height: 28px; font-size: 0.8rem; background-color: #f1f5f9; color: #64748b;">
+                            <i class="fa-solid fa-user-tie"></i>
+                        </div>
+                        <span id="lblNombreDocente" class="fw-medium small text-muted">...</span>
+                    </div>
                 </div>
             </div>
         </div>
@@ -23,50 +29,44 @@
         <div class="card-footer bg-white p-0 border-0">
             <ul class="nav nav-tabs nav-justified border-0" id="aulaTabs" role="tablist">
                 <li class="nav-item" role="presentation">
-                    <button class="nav-link active py-3 border-0 border-bottom border-3 fw-medium rounded-0"
-                            id="tareas-tab" data-bs-toggle="tab" data-bs-target="#tareas-pane" type="button">
-                        <i class="fa-solid fa-clipboard-list me-2"></i>Tareas
+                    <button class="nav-link active" id="tareas-tab" data-bs-toggle="tab" data-bs-target="#tareas-pane" type="button">
+                        Tareas
                     </button>
                 </li>
                 <li class="nav-item" role="presentation">
-                    <button class="nav-link py-3 border-0 border-bottom border-3 fw-medium rounded-0"
-                            id="materiales-tab" data-bs-toggle="tab" data-bs-target="#materiales-pane" type="button">
-                        <i class="fa-solid fa-folder-open me-2"></i>Materiales
+                    <button class="nav-link" id="materiales-tab" data-bs-toggle="tab" data-bs-target="#materiales-pane" type="button">
+                        Materiales
                     </button>
                 </li>
                 <li class="nav-item" role="presentation">
-                    <button class="nav-link py-3 border-0 border-bottom border-3 fw-medium rounded-0"
-                            id="notas-tab" data-bs-toggle="tab" data-bs-target="#notas-pane" type="button">
-                        <i class="fa-solid fa-star me-2"></i>Mis Notas
+                    <button class="nav-link" id="notas-tab" data-bs-toggle="tab" data-bs-target="#notas-pane" type="button">
+                        Calificaciones
                     </button>
                 </li>
             </ul>
         </div>
     </div>
 
-    <div class="tab-content" id="aulaTabsContent">
+    <div class="tab-content px-3 pb-5" id="aulaTabsContent">
 
         <div class="tab-pane fade show active" id="tareas-pane" role="tabpanel">
-            <div id="listaTareas" class="row g-3">
-                <div class="text-center py-5"><div class="spinner-border text-primary"></div></div>
+            <div id="listaTareas" class="row g-4">
+                <div class="text-center py-5">
+                    <div class="spinner-border text-primary"></div>
+                </div>
             </div>
         </div>
 
-        <div class="tab-pane fade" id="materiales-pane" role="tabpanel" aria-labelledby="materiales-tab">
+        <div class="tab-pane fade" id="materiales-pane" role="tabpanel">
             <div class="row justify-content-center">
-                <div class="col-md-10">
+                <div class="col-md-10 col-lg-8">
                     <div class="card border-0 shadow-sm mt-3">
-                        <div class="card-header bg-white py-3 border-0">
-                            <h5 class="fw-bold mb-0 text-primary">
-                                <i class="fa-solid fa-folder-open me-2"></i>Recursos del Docente
-                            </h5>
+                        <div class="card-header bg-white py-3 border-bottom">
+                            <h6 class="fw-bold mb-0 text-dark">Recursos Compartidos</h6>
                         </div>
                         <div class="card-body p-0">
                             <div id="listaMateriales" class="list-group list-group-flush">
-                                <div class="text-center py-5">
-                                    <div class="spinner-border text-primary" role="status"></div>
-                                    <p class="mt-2 text-muted small">Buscando archivos...</p>
-                                </div>
+                                <div class="text-center py-5"><div class="spinner-border text-primary"></div></div>
                             </div>
                         </div>
                     </div>
@@ -75,48 +75,62 @@
         </div>
 
         <div class="tab-pane fade" id="notas-pane" role="tabpanel">
-            <div id="contenedorNotas" class="text-center py-5">
+
+            <div id="loadingNotas" class="text-center py-5">
                 <div class="spinner-border text-primary"></div>
+                <p class="mt-2 text-muted small">Calculando rendimiento académico...</p>
+            </div>
+
+            <div id="contenidoBoleta" style="display:none;">
+                <div class="row justify-content-center">
+                    <div class="col-lg-9">
+
+                        <div id="contenedorBoleta"></div>
+
+                        <div id="emptyStateNotas" class="text-center py-5 d-none">
+                            <div class="bg-light rounded-circle d-inline-flex p-4 mb-3">
+                                <i class="fa-solid fa-book-open text-muted opacity-50 display-4"></i>
+                            </div>
+                            <h6 class="fw-bold text-dark">Sin Registros</h6>
+                            <p class="text-muted small">El docente aún no ha publicado calificaciones.</p>
+                        </div>
+
+                    </div>
+                </div>
             </div>
         </div>
 
     </div>
 </div>
 
-<div class="modal fade" id="modalEntrega" tabindex="-1" aria-hidden="true">
+<div class="modal fade" id="modalEntrega" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
     <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content border-0 shadow-lg">
-            <div class="modal-header bg-primary text-white border-0">
-                <h5 class="modal-title fw-bold">
-                    <i class="fa-solid fa-cloud-arrow-up me-2"></i>Entregar Tarea
-                </h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+        <div class="modal-content">
+            <div class="modal-header border-bottom-0 pb-0">
+                <h5 class="modal-title fw-bold text-dark">Entregar Tarea</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body p-4">
                 <form id="formEntrega">
                     <input type="hidden" id="hdnTareaId" />
-
+                    <div class="mb-4 text-center">
+                        <h6 class="fw-bold text-primary mb-1" id="lblTituloTarea">...</h6>
+                        <span class="badge bg-light text-muted">Subir Archivo</span>
+                    </div>
                     <div class="mb-3">
-                        <label class="form-label fw-bold text-dark" id="lblTituloTarea">Título de la Tarea</label>
-                        <p class="text-muted small">Selecciona tu archivo (Word o PDF). Máximo 5MB.</p>
-
-                        <div class="input-group">
-                            <input type="file" class="form-control" id="fileEntrega" accept=".pdf,.doc,.docx" required>
-                        </div>
+                        <label class="form-label small fw-bold text-muted text-uppercase">Seleccionar</label>
+                        <input type="file" class="form-control" id="fileEntrega" required>
+                        <div class="form-text small">PDF, Word o Imagen. Máx 5MB.</div>
                     </div>
-
-                    <div id="progresoEntrega" class="progress mt-3" style="height: 5px; display:none;">
-                        <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" style="width: 100%"></div>
+                    <div id="progresoEntrega" class="progress mt-3" style="height: 4px; display:none;">
+                        <div class="progress-bar bg-primary" style="width: 100%"></div>
                     </div>
-
-                    <div id="mensajeError" class="alert alert-danger mt-3 small py-2" style="display:none;"></div>
+                    <div id="mensajeError" class="alert alert-danger mt-3 small py-2 border-0 bg-danger bg-opacity-10 text-danger" style="display:none;"></div>
                 </form>
             </div>
-            <div class="modal-footer border-0 pt-0">
-                <button type="button" class="btn btn-light rounded-pill" data-bs-dismiss="modal">Cancelar</button>
-                <button type="button" class="btn btn-primary rounded-pill px-4" onclick="enviarTarea()">
-                    <i class="fa-solid fa-paper-plane me-2"></i>Enviar
-                </button>
+            <div class="modal-footer border-0 bg-white">
+                <button type="button" class="btn btn-white border" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-primary px-4" onclick="enviarTarea()">Enviar</button>
             </div>
         </div>
     </div>

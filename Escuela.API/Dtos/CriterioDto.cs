@@ -6,5 +6,7 @@
         public string Nombre { get; set; } = string.Empty;
         public decimal Peso { get; set; }
         public string Curso { get; set; } = string.Empty;
+
+        public int NumeroPeriodo { get; set; }
     }
 }

@@ -20,5 +20,9 @@ namespace Escuela.Core.Entities
 
         [JsonIgnore] 
         public Curso? Curso { get; set; }
+
+
+        public int SeccionId { get; set; }
+        public Seccion? Seccion { get; set; }
     }
 }

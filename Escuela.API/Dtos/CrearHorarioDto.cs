@@ -17,5 +17,7 @@ namespace Escuela.API.Dtos
         [Required(ErrorMessage = "La hora de fin es obligatoria.")]
         [RegularExpression(@"^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$", ErrorMessage = "La hora fin debe tener formato HH:mm (Ej: 09:30).")]
         public string HoraFin { get; set; } = string.Empty;
+
+        public int SeccionId { get; set; }
     }
 }

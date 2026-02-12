@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace Escuela.API.Migrations
 {
     /// <inheritdoc />
-    public partial class Inicial : Migration
+    public partial class AgregarSeccionAHorario : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -327,8 +327,7 @@ namespace Escuela.API.Migrations
                     Titulo = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
                     Descripcion = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Nivel = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Estado = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    DescargoAlumno = table.Column<string>(type: "nvarchar(max)", nullable: true)
+                    Estado = table.Column<string>(type: "nvarchar(max)", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -455,6 +454,7 @@ namespace Escuela.API.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Nombre = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
                     Peso = table.Column<decimal>(type: "decimal(5,2)", nullable: false),
+                    NumeroPeriodo = table.Column<int>(type: "int", nullable: false),
                     CursoId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
@@ -462,28 +462,6 @@ namespace Escuela.API.Migrations
                     table.PrimaryKey("PK_CriteriosEvaluacion", x => x.Id);
                     table.ForeignKey(
                         name: "FK_CriteriosEvaluacion_Cursos_CursoId",
-                        column: x => x.CursoId,
-                        principalTable: "Cursos",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Horarios",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    DiaSemana = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    HoraInicio = table.Column<TimeSpan>(type: "time", nullable: false),
-                    HoraFin = table.Column<TimeSpan>(type: "time", nullable: false),
-                    CursoId = table.Column<int>(type: "int", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Horarios", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_Horarios_Cursos_CursoId",
                         column: x => x.CursoId,
                         principalTable: "Cursos",
                         principalColumn: "Id",
@@ -531,6 +509,35 @@ namespace Escuela.API.Migrations
                         name: "FK_Tareas_Cursos_CursoId",
                         column: x => x.CursoId,
                         principalTable: "Cursos",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Horarios",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    DiaSemana = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    HoraInicio = table.Column<TimeSpan>(type: "time", nullable: false),
+                    HoraFin = table.Column<TimeSpan>(type: "time", nullable: false),
+                    CursoId = table.Column<int>(type: "int", nullable: false),
+                    SeccionId = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Horarios", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Horarios_Cursos_CursoId",
+                        column: x => x.CursoId,
+                        principalTable: "Cursos",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Horarios_Secciones_SeccionId",
+                        column: x => x.SeccionId,
+                        principalTable: "Secciones",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -783,6 +790,11 @@ namespace Escuela.API.Migrations
                 name: "IX_Horarios_CursoId",
                 table: "Horarios",
                 column: "CursoId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Horarios_SeccionId",
+                table: "Horarios",
+                column: "SeccionId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Incidencias_EstudianteId",

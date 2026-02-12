@@ -3,55 +3,72 @@
     Layout = "~/Views/Shared/_LayoutEstudiante.cshtml";
 }
 
+<link rel="stylesheet" href="~/css/estudiante.css" />
+
 <div class="container-fluid p-0">
+
+    <div class="d-flex justify-content-between align-items-end mb-4">
+        <div>
+            <h2 class="fw-bold text-dark mb-0">Resumen Académico</h2>
+            <p class="text-muted small mb-0">Bienvenido a tu panel de control.</p>
+        </div>
+        <div id="lblFechaHoy" class="text-muted fw-medium small">
+            Cargando fecha...
+        </div>
+    </div>
+
     <div class="row g-4">
+
         <div class="col-lg-8">
             <div class="card border-0 shadow-sm h-100">
-                <div class="card-header bg-white py-3 border-0 d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0 fw-bold text-dark" style="font-family: var(--font-heading);">
-                        <i class="fa-regular fa-calendar-check me-2 text-primary"></i>Agenda de Hoy
-                    </h5>
-                    <span class="badge bg-light text-dark border" id="lblFechaHoy">Cargando fecha...</span>
+                <div class="card-header bg-white py-3 border-bottom d-flex justify-content-between align-items-center">
+                    <h6 class="mb-0 fw-bold text-dark">
+                        <i class="fa-regular fa-calendar me-2 text-primary"></i>Agenda de Hoy
+                    </h6>
                 </div>
                 <div class="card-body">
-                    <div id="timeline-container" class="timeline-container mt-2">
-                        <p class="text-muted text-center py-5">Cargando horario...</p>
+                    <div id="timeline-container" class="mt-2">
+                        <p class="text-muted text-center py-5 small">Cargando tu horario...</p>
                     </div>
                 </div>
             </div>
         </div>
 
         <div class="col-lg-4 d-flex flex-column gap-4">
+
             <div class="card border-0 shadow-sm">
-                <div class="card-body p-4 text-center position-relative overflow-hidden" id="cardFinanzas">
+                <div class="card-body p-4 text-center" id="cardFinanzas">
                     <div id="loaderFinanzas">
                         <div class="spinner-border text-primary spinner-border-sm" role="status"></div>
-                        <small class="ms-2">Verificando pagos...</small>
                     </div>
                     <div id="contentFinanzas" style="display:none;">
-                        <div class="mb-3"><i id="iconFinanzas" class="fa-solid fa-circle-check display-4"></i></div>
-                        <h6 class="text-uppercase text-muted fw-bold mb-1" style="font-size: 0.75rem; letter-spacing: 1px;">Estado Financiero</h6>
-                        <h3 class="fw-bold mb-0" id="lblEstadoFinanciero">Al Día</h3>
-                        <p class="mb-3 mt-2 fw-bold" id="lblMontoDeuda" style="font-size: 1.2rem;">S/ 0.00</p>
-                        <a href="/Estudiante/Pagos" class="btn btn-sm w-100 rounded-pill fw-medium" id="btnAccionFinanzas">Ver Historial</a>
+                        <h6 class="text-uppercase text-muted fw-bold mb-3" style="font-size: 0.65rem; letter-spacing: 1px;">Estado Financiero</h6>
+
+                        <div class="mb-2">
+                            <i id="iconFinanzas" class="fa-solid fa-shield-check fs-1 mb-2"></i>
+                            <h4 class="fw-bold mb-0" id="lblEstadoFinanciero">...</h4>
+                        </div>
+
+                        <p class="text-muted mb-3 small" id="lblMontoDeuda">...</p>
+
+                        <a href="/Estudiante/Pagos" class="btn btn-sm w-100 rounded-pill fw-medium" id="btnAccionFinanzas">Ver Detalles</a>
                     </div>
                 </div>
             </div>
 
             <div class="card border-0 shadow-sm flex-grow-1">
-                <div class="card-header bg-white py-3 border-0">
-                    <h6 class="mb-0 fw-bold text-dark" style="font-family: var(--font-heading);">
-                        <i class="fa-solid fa-bullhorn me-2 text-warning"></i>Comunicados
+                <div class="card-header bg-white py-3 border-bottom">
+                    <h6 class="mb-0 fw-bold text-dark">
+                        <i class="fa-regular fa-bell me-2 text-primary"></i>Avisos Recientes
                     </h6>
                 </div>
                 <div class="card-body p-0">
                     <div id="lista-comunicados" class="list-group list-group-flush">
-                        <p class="text-center text-muted py-4 small">Cargando avisos...</p>
                     </div>
                 </div>
-                <div class="card-footer bg-white border-0 text-center pb-3">
-                    <button class="btn btn-link btn-sm text-decoration-none text-primary fw-bold" onclick="abrirHistorialComunicados()">
-                        Ver todos los avisos <i class="fa-solid fa-arrow-right ms-1"></i>
+                <div class="card-footer bg-white border-0 text-center py-3">
+                    <button class="btn btn-light btn-sm w-100 rounded-pill text-muted fw-medium" onclick="abrirHistorialComunicados()">
+                        Ver histórico
                     </button>
                 </div>
             </div>
@@ -61,20 +78,21 @@
 
 <div class="modal fade" id="modalComunicado" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content border-0 shadow-lg">
-            <div class="modal-header bg-primary text-white border-0">
-                <h5 class="modal-title fw-bold" id="modalTitulo">Título del Aviso</h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+        <div class="modal-content">
+            <div class="modal-header border-0 pb-0">
+                <h5 class="modal-title fw-bold text-dark" id="modalTitulo">Aviso</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body p-4">
-                <div class="d-flex justify-content-between align-items-center mb-3">
-                    <span class="badge bg-light text-primary border" id="modalAutor">Autor</span>
-                    <small class="text-muted" id="modalFecha">Fecha</small>
+                <div class="d-flex align-items-center mb-3 text-muted small">
+                    <i class="fa-solid fa-user-pen me-2"></i>
+                    <span id="modalAutor" class="me-3 fw-bold">Autor</span>
+                    <span id="modalFecha">Fecha</span>
                 </div>
-                <p class="text-secondary" id="modalContenido" style="white-space: pre-wrap;"></p>
+                <p class="text-dark" id="modalContenido" style="white-space: pre-wrap; line-height: 1.6;"></p>
             </div>
             <div class="modal-footer border-0 pt-0">
-                <button type="button" class="btn btn-light w-100 rounded-pill" data-bs-dismiss="modal">Entendido</button>
+                <button type="button" class="btn btn-light border w-100" data-bs-dismiss="modal">Cerrar</button>
             </div>
         </div>
     </div>
@@ -82,23 +100,35 @@
 
 <div class="modal fade" id="modalHistorialComunicados" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-lg modal-dialog-scrollable">
-        <div class="modal-content border-0 shadow-lg">
-            <div class="modal-header bg-dark text-white border-0">
-                <h5 class="modal-title fw-bold"><i class="fa-solid fa-bullhorn me-2 text-warning"></i>Historial de Comunicados</h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title fw-bold text-dark">Buzón de Comunicados</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body bg-light">
-                <div class="row mb-4 bg-white p-3 rounded shadow-sm mx-0">
-                    <div class="col-md-6">
-                        <label class="small fw-bold text-muted mb-1">Filtrar por fecha:</label>
-                        <input type="date" id="filtroFechaComunicado" class="form-control form-control-sm" onchange="filtrarComunicadosPorFecha()">
-                    </div>
-                    <div class="col-md-6 d-flex align-items-end">
-                        <button class="btn btn-outline-secondary btn-sm w-100" onclick="limpiarFiltroComunicados()">Mostrar todos</button>
+
+                <div class="bg-white p-4 rounded-3 border border-light shadow-sm mb-4">
+                    <div class="row align-items-end g-3">
+                        <div class="col-sm-8">
+                            <label for="filtroFechaComunicado" class="form-label small fw-bold text-uppercase text-muted mb-1" style="font-size: 0.7rem; letter-spacing: 0.5px;">
+                                Buscar por fecha
+                            </label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-white border-end-0 text-muted ps-3">
+                                    <i class="fa-regular fa-calendar"></i>
+                                </span>
+                                <input type="date" id="filtroFechaComunicado" class="form-control border-start-0 ps-2" onchange="filtrarComunicadosPorFecha()" style="border-color: #dee2e6;">
+                            </div>
+                        </div>
+                        <div class="col-sm-4">
+                            <button class="btn btn-light border w-100 fw-medium text-muted" onclick="limpiarFiltroComunicados()">
+                                <i class="fa-solid fa-rotate-left me-2 small"></i>Ver todos
+                            </button>
+                        </div>
                     </div>
                 </div>
-                <div id="contenedor-historial-comunicados" class="list-group">
-                </div>
+
+                <div id="contenedor-historial-comunicados"></div>
             </div>
         </div>
     </div>

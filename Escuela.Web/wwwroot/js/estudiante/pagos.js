@@ -4,9 +4,6 @@
 
 let modalPago;
 
-
-/* visualizacion de pensiones llamando al get del back */
-
 async function cargarPensiones() {
     const tabla = document.getElementById("tablaPensiones");
     const lblDeuda = document.getElementById("lblDeudaTotal");
@@ -141,8 +138,6 @@ async function cargarPensiones() {
 }
 
 
-/* modal de pago */
-
 function abrirModalPago(id, mes, total) {
     document.getElementById("hdnPensionId").value = id;
     document.getElementById("txtMontoPagar").innerText = `S/ ${total.toFixed(2)}`;
@@ -153,8 +148,6 @@ function abrirModalPago(id, mes, total) {
     modalPago.show();
 }
 
-
-/* procesamiento de pago */
 
 async function procesarPago() {
     const id = document.getElementById("hdnPensionId").value;
@@ -240,8 +233,6 @@ async function procesarPago() {
     }
 }
 
-
-/* visualizacion del recibo*/
 
 function verRecibo(codigo) {
     Swal.fire({

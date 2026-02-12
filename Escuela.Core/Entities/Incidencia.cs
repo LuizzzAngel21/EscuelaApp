@@ -29,6 +29,5 @@ namespace Escuela.Core.Entities
 
         public string Estado { get; set; } = "Abierto"; 
 
-        public string? DescargoAlumno { get; set; } 
     }
 }

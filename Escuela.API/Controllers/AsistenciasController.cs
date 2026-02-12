@@ -19,12 +19,115 @@ namespace Escuela.API.Controllers
             _context = context;
         }
 
+        [HttpGet("Diaria/{cursoId}")]
+        public async Task<ActionResult<IEnumerable<AsistenciaDiariaDto>>> GetHojaAsistencia(
+       int cursoId,
+       [FromQuery] DateTime fecha,
+       [FromQuery] int? seccionId)
+        {
+            var curso = await _context.Cursos.FindAsync(cursoId);
+            if (curso == null) return NotFound("El curso especificado no existe.");
+
+            var query = _context.Matriculas
+                .Include(m => m.Estudiante)
+                .Where(m => m.GradoId == curso.GradoId) 
+                .AsQueryable();
+
+            if (seccionId.HasValue)
+            {
+                query = query.Where(m => m.SeccionId == seccionId.Value);
+            }
+
+            var matriculas = await query
+                .OrderBy(m => m.Estudiante.Apellidos)
+                .ToListAsync();
+
+            if (!matriculas.Any())
+            {
+                return Ok(new List<AsistenciaDiariaDto>());
+            }
+
+            var asistenciasHoy = await _context.Asistencias
+                .Where(a => a.CursoId == cursoId && a.Fecha.Date == fecha.Date)
+                .ToListAsync();
+
+            var hojaAsistencia = matriculas.Select(m =>
+            {
+                var asistencia = asistenciasHoy.FirstOrDefault(a => a.MatriculaId == m.Id);
+
+                return new AsistenciaDiariaDto
+                {
+                    MatriculaId = m.Id,
+                    EstudianteNombre = m.Estudiante != null
+                        ? $"{m.Estudiante.Apellidos}, {m.Estudiante.Nombres}"
+                        : "Desconocido",
+                    EstadoId = asistencia != null ? (int)asistencia.Estado : 0, 
+                    Observacion = asistencia?.Observacion,
+                    YaRegistrado = asistencia != null
+                };
+            }).ToList();
+
+            return Ok(hojaAsistencia);
+        }
+
+        [HttpPost("Masiva")]
+        [Authorize(Roles = "Academico,Administrativo")]
+        public async Task<ActionResult> PostAsistenciaMasiva([FromBody] List<CrearAsistenciaDto> listaAsistencias)
+        {
+            if (listaAsistencias == null || !listaAsistencias.Any())
+                return BadRequest("La lista de asistencia está vacía.");
+
+            using var transaction = await _context.Database.BeginTransactionAsync();
+
+            try
+            {
+                var fechaProceso = listaAsistencias.First().Fecha?.Date ?? DateTime.Today;
+
+                foreach (var dto in listaAsistencias)
+                {
+                    var asistenciaDb = await _context.Asistencias
+                        .FirstOrDefaultAsync(a => a.MatriculaId == dto.MatriculaId
+                                               && a.CursoId == dto.CursoId
+                                               && a.Fecha.Date == fechaProceso);
+
+                    if (asistenciaDb != null)
+                    {
+                        asistenciaDb.Estado = dto.Estado;
+                        asistenciaDb.Observacion = dto.Observacion;
+                        _context.Entry(asistenciaDb).State = EntityState.Modified;
+                    }
+                    else
+                    {
+                        var nueva = new Asistencia
+                        {
+                            MatriculaId = dto.MatriculaId,
+                            CursoId = dto.CursoId,
+                            Fecha = fechaProceso,
+                            Estado = dto.Estado,
+                            Observacion = dto.Observacion
+                        };
+                        _context.Asistencias.Add(nueva);
+                    }
+                }
+
+                await _context.SaveChangesAsync();
+                await transaction.CommitAsync();
+
+                return Ok(new { mensaje = "Asistencia guardada correctamente." });
+            }
+            catch (Exception ex)
+            {
+                await transaction.RollbackAsync();
+                return StatusCode(500, $"Error interno al guardar: {ex.Message}");
+            }
+        }
+
         [HttpGet("Alumno/{matriculaId}")]
         public async Task<ActionResult<IEnumerable<AsistenciaDto>>> GetAsistenciasPorAlumno(int matriculaId)
         {
             var asistencias = await _context.Asistencias
                 .Include(a => a.Matricula!).ThenInclude(m => m.Estudiante)
-                .Include(a => a.Curso) 
+                .Include(a => a.Curso)
                 .Where(a => a.MatriculaId == matriculaId)
                 .Select(a => new AsistenciaDto
                 {
@@ -38,69 +141,6 @@ namespace Escuela.API.Controllers
                 .ToListAsync();
 
             return Ok(asistencias);
-        }
-
-        [HttpPost]
-        [Authorize(Roles = "Academico,Administrativo")]
-        public async Task<ActionResult<AsistenciaDto>> PostAsistencia(CrearAsistenciaDto dto)
-        {
-            var existeMatricula = await _context.Matriculas.AnyAsync(m => m.Id == dto.MatriculaId);
-            if (!existeMatricula) return BadRequest("La matrícula no existe.");
-
-            var existeCurso = await _context.Cursos.AnyAsync(c => c.Id == dto.CursoId);
-            if (!existeCurso) return BadRequest("El curso no existe.");
-
-            var yaRegistroHoy = await _context.Asistencias
-                .AnyAsync(a => a.MatriculaId == dto.MatriculaId &&
-                               a.CursoId == dto.CursoId &&
-                               a.Fecha.Date == DateTime.Today);
-
-            if (yaRegistroHoy) return BadRequest("El estudiante ya tiene asistencia registrada para este curso el día de hoy.");
-
-            var nuevaAsistencia = new Asistencia
-            {
-                MatriculaId = dto.MatriculaId,
-                CursoId = dto.CursoId,
-                Fecha = DateTime.Now,
-                Estado = dto.Estado,
-                Observacion = dto.Observacion
-            };
-
-            _context.Asistencias.Add(nuevaAsistencia);
-            await _context.SaveChangesAsync();
-
-            return Ok(new { mensaje = "Asistencia registrada correctamente", estado = nuevaAsistencia.Estado.ToString() });
-        }
-
-        [HttpPut("{id}")]
-        [Authorize(Roles = "Academico,Administrativo")]
-        public async Task<IActionResult> PutAsistencia(int id, [FromBody] CrearAsistenciaDto dto)
-        {
-            var asistencia = await _context.Asistencias.FindAsync(id);
-
-            if (asistencia == null)
-            {
-                return NotFound("La asistencia especificada no existe.");
-            }
-
-            asistencia.Estado = dto.Estado;
-            asistencia.Observacion = dto.Observacion;
-
-            _context.Entry(asistencia).State = EntityState.Modified;
-
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!await _context.Asistencias.AnyAsync(a => a.Id == id))
-                    return NotFound();
-                else
-                    throw;
-            }
-
-            return Ok(new { mensaje = "Asistencia actualizada correctamente", estado = asistencia.Estado.ToString() });
         }
     }
 }

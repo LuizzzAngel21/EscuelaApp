@@ -8,5 +8,8 @@
         public bool Activo { get; set; }
         public string NombreGrado { get; set; } = string.Empty;
         public string NombreDocente { get; set; } = string.Empty;
+
+
+        public int GradoId { get; set; }
     }
 }

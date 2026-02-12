@@ -3,27 +3,36 @@
     Layout = "~/Views/Shared/_LayoutEstudiante.cshtml";
 }
 
+<link rel="stylesheet" href="~/css/estudiante.css" />
+
 <div class="container-fluid p-0">
-    <div class="d-flex justify-content-between align-items-center mb-4">
+
+    <div class="d-flex justify-content-between align-items-end mb-5">
         <div>
-            <h4 class="fw-bold text-dark mb-1" style="font-family: var(--font-heading);">Mis Cursos</h4>
-            <p class="text-muted small mb-0">Selecciona una materia para ver tareas y materiales</p>
+            <h2 class="fw-bold text-dark mb-1" style="letter-spacing: -0.5px;">Mis Cursos</h2>
+            <p class="text-muted mb-0 small">Accede a tus materias, tareas y calificaciones.</p>
         </div>
-        <span class="badge bg-white text-secondary border px-3 py-2">Periodo 2026-I</span>
+        <div class="d-none d-md-block">
+            <span class="badge badge-clean">
+                <i class="fa-regular fa-calendar me-2"></i>Periodo 2026-I
+            </span>
+        </div>
     </div>
 
     <div id="loaderCursos" class="text-center py-5">
         <div class="spinner-border text-primary" role="status"></div>
-        <p class="mt-2 text-muted small">Cargando materias...</p>
+        <p class="mt-2 text-muted small">Cargando asignaturas...</p>
     </div>
 
     <div id="gridCursos" class="row g-4" style="display:none;">
     </div>
 
     <div id="emptyStateCursos" class="text-center py-5" style="display:none;">
-        <i class="fa-solid fa-folder-open display-1 text-light mb-3"></i>
-        <h5 class="text-muted">No tienes cursos matriculados</h5>
-        <p class="text-secondary small">Contacta a coordinación académica.</p>
+        <div class="bg-light rounded-circle d-inline-flex p-4 mb-3 text-muted opacity-50">
+            <i class="fa-solid fa-folder-open display-4"></i>
+        </div>
+        <h5 class="text-dark fw-bold">No tienes cursos asignados</h5>
+        <p class="text-muted small">Si crees que es un error, contacta a coordinación.</p>
     </div>
 </div>
 

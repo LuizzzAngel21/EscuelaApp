@@ -149,6 +149,9 @@ namespace Escuela.API.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
 
+                    b.Property<int>("NumeroPeriodo")
+                        .HasColumnType("int");
+
                     b.Property<decimal>("Peso")
                         .HasColumnType("decimal(5,2)");
 
@@ -386,9 +389,14 @@ namespace Escuela.API.Migrations
                     b.Property<TimeSpan>("HoraInicio")
                         .HasColumnType("time");
 
+                    b.Property<int>("SeccionId")
+                        .HasColumnType("int");
+
                     b.HasKey("Id");
 
                     b.HasIndex("CursoId");
+
+                    b.HasIndex("SeccionId");
 
                     b.ToTable("Horarios");
                 });
@@ -400,9 +408,6 @@ namespace Escuela.API.Migrations
                         .HasColumnType("int");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("DescargoAlumno")
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Descripcion")
                         .IsRequired()
@@ -1128,7 +1133,15 @@ namespace Escuela.API.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("Escuela.Core.Entities.Seccion", "Seccion")
+                        .WithMany()
+                        .HasForeignKey("SeccionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.Navigation("Curso");
+
+                    b.Navigation("Seccion");
                 });
 
             modelBuilder.Entity("Escuela.Core.Entities.Incidencia", b =>

@@ -1,0 +1,54 @@
+﻿@{
+    ViewData["Title"] = "Mi Horario";
+    Layout = "~/Views/Shared/_LayoutDocente.cshtml";
+}
+
+<link rel="stylesheet" href="~/css/docente.css" />
+
+<div class="container-fluid py-4">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="fw-bold text-dark mb-1">Mi Carga Horaria</h2>
+            <p class="text-muted mb-0">Distribución semanal de clases asignadas.</p>
+        </div>
+        <div class="d-none d-md-block">
+            <span class="badge badge-clean px-3 py-2">
+                <i class="fa-regular fa-calendar me-2"></i>Periodo Académico 2026
+            </span>
+        </div>
+    </div>
+
+    <div class="card border-0 shadow-sm">
+        <div class="card-body p-0">
+            <div class="horario-container border-0 rounded-0">
+                <div class="table-responsive">
+                    <table class="table-horario">
+                        <thead>
+                            <tr>
+                                <th style="width: 80px;">Hora</th>
+                                <th>Lunes</th>
+                                <th>Martes</th>
+                                <th>Miércoles</th>
+                                <th>Jueves</th>
+                                <th>Viernes</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tablaHorarioBody">
+                            <tr>
+                                <td colspan="6" class="text-center py-5 text-muted small">
+                                    <div class="spinner-border spinner-border-sm text-primary mb-2"></div>
+                                    <div>Cargando programación...</div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/js/docente/horario.js"></script>
+}

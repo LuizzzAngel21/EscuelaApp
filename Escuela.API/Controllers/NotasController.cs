@@ -20,143 +20,249 @@ namespace Escuela.API.Controllers
             _context = context;
         }
 
-        [HttpGet("Matricula/{matriculaId}")]
-        public async Task<ActionResult<IEnumerable<NotaDto>>> GetNotasPorMatricula(int matriculaId)
+        [HttpGet("Sabana")]
+        [Authorize(Roles = "Academico,Administrativo")]
+        public async Task<ActionResult<SabanaResponseDto>> GetSabanaDocente(
+            [FromQuery] int cursoId,
+            [FromQuery] int seccionId)
         {
-            var esAlumno = User.IsInRole("Estudiantil");
-            if (esAlumno)
-            {
-                var matricula = await _context.Matriculas
-                    .Include(m => m.Estudiante)
-                    .FirstOrDefaultAsync(m => m.Id == matriculaId);
+            var curso = await _context.Cursos.FindAsync(cursoId);
+            if (curso == null) return NotFound("Curso no encontrado.");
 
-                var userId = User.FindFirstValue("uid");
-                if (matricula == null || matricula.Estudiante?.UsuarioId != userId) return Forbid();
-            }
-
-            var notas = await _context.Notas
-                .Include(n => n.Matricula!).ThenInclude(m => m.Estudiante)
-                .Include(n => n.CriterioEvaluacion)
-                .Where(n => n.MatriculaId == matriculaId)
-                .Select(n => new NotaDto
+            var criterios = await _context.CriteriosEvaluacion
+                .Where(c => c.CursoId == cursoId)
+                .OrderBy(c => c.NumeroPeriodo)
+                .ThenBy(c => c.Id)
+                .Select(c => new CriterioDto
                 {
-                    Id = n.Id,
-                    Estudiante = (n.Matricula != null && n.Matricula.Estudiante != null)
-                        ? n.Matricula.Estudiante.Nombres
-                        : "N/A",
-                    Evaluacion = n.CriterioEvaluacion != null ? n.CriterioEvaluacion.Nombre : "Sin Criterio",
-                    Valor = n.Valor
+                    Id = c.Id,
+                    Nombre = c.Nombre,
+                    Peso = c.Peso,
+                    NumeroPeriodo = c.NumeroPeriodo
                 })
                 .ToListAsync();
 
-            return Ok(notas);
-        }
+            var estructura = criterios
+                .GroupBy(c => c.NumeroPeriodo)
+                .Select(g => new PeriodoHeaderDto
+                {
+                    NumeroPeriodo = g.Key,
+                    Nombre = $"Bimestre {ToRoman(g.Key)}",
+                    Criterios = g.ToList()
+                })
+                .OrderBy(p => p.NumeroPeriodo)
+                .ToList();
 
+            var queryMatriculas = _context.Matriculas
+                .Include(m => m.Estudiante)
+                .Where(m => m.GradoId == curso.GradoId);
 
-
-        [HttpPost]
-        [Authorize(Roles = "Academico,Administrativo")]
-        public async Task<ActionResult<NotaDto>> PostNota(CrearNotaDto dto)
-        {
-            var matricula = await _context.Matriculas.FindAsync(dto.MatriculaId);
-            if (matricula == null) return BadRequest("La matrícula no existe.");
-
-            var criterio = await _context.CriteriosEvaluacion
-                .Include(c => c.Curso)
-                .FirstOrDefaultAsync(c => c.Id == dto.CriterioEvaluacionId);
-
-            if (criterio == null) return BadRequest("El criterio de evaluación no existe.");
-
-            if (criterio.Curso == null) return BadRequest("El criterio no tiene un curso asignado válido.");
-
-            if (matricula.GradoId != criterio.Curso.GradoId)
+            if (seccionId > 0)
             {
-                return BadRequest("El alumno no pertenece al grado de este curso.");
+                queryMatriculas = queryMatriculas.Where(m => m.SeccionId == seccionId);
             }
 
-            var notaExiste = await _context.Notas.AnyAsync(n => n.MatriculaId == dto.MatriculaId && n.CriterioEvaluacionId == dto.CriterioEvaluacionId);
-            if (notaExiste) return BadRequest("El alumno ya tiene nota en este criterio. Use PUT para editar.");
-
-            var nuevaNota = new Nota
-            {
-                MatriculaId = dto.MatriculaId,
-                CriterioEvaluacionId = dto.CriterioEvaluacionId,
-                Valor = dto.Valor
-            };
-
-            _context.Notas.Add(nuevaNota);
-            await _context.SaveChangesAsync();
-
-            return Ok(new { mensaje = "Nota registrada correctamente", nota = dto.Valor });
-        }
-
-
-        [HttpGet("Promedio")]
-        public async Task<ActionResult<PromedioDto>> GetPromedioCurso(
-            [FromQuery] int matriculaId,
-            [FromQuery] int cursoId)
-        {
-            var esAlumno = User.IsInRole("Estudiantil");
-            if (esAlumno)
-            {
-                var matricula = await _context.Matriculas.Include(m => m.Estudiante).FirstOrDefaultAsync(m => m.Id == matriculaId);
-                var userId = User.FindFirstValue("uid") ?? User.FindFirstValue(ClaimTypes.NameIdentifier);
-                if (matricula == null || matricula.Estudiante?.UsuarioId != userId) return Forbid();
-            }
-
-            var nombreCurso = await _context.Cursos.Where(c => c.Id == cursoId).Select(c => c.Nombre).FirstOrDefaultAsync() ?? "Desconocido";
-            var criterios = await _context.CriteriosEvaluacion.Where(c => c.CursoId == cursoId).ToListAsync();
-
-            if (!criterios.Any())
-            {
-                return Ok(new PromedioDto { Curso = nombreCurso, PromedioFinal = 0, Estado = "SIN CONFIGURAR", Detalles = new List<DetalleNotaDto>() });
-            }
-
-            var notasEstudiante = await _context.Notas
-                .Where(n => n.MatriculaId == matriculaId && n.CriterioEvaluacion!.CursoId == cursoId)
+            var matriculas = await queryMatriculas
+                .OrderBy(m => m.Estudiante.Apellidos)
                 .ToListAsync();
 
-            decimal sumaPonderada = 0;
-            decimal pesoEvaluado = 0; 
-            var detalles = new List<DetalleNotaDto>();
+            var matriculaIds = matriculas.Select(m => m.Id).ToList();
+            var notasDB = await _context.Notas
+                .Where(n => matriculaIds.Contains(n.MatriculaId) && n.CriterioEvaluacion.CursoId == cursoId)
+                .ToListAsync();
 
-            foreach (var criterio in criterios)
+            var alumnosSabana = new List<AlumnoSabanaDto>();
+
+            foreach (var mat in matriculas)
             {
-                var nota = notasEstudiante.FirstOrDefault(n => n.CriterioEvaluacionId == criterio.Id);
-                decimal valorNota = 0;
+                var notasDelAlumno = notasDB.Where(n => n.MatriculaId == mat.Id).ToList();
+                var promediosPorPeriodo = new Dictionary<int, decimal>();
 
-                if (nota != null)
+                foreach (var periodo in estructura)
                 {
-                    valorNota = nota.Valor;
-                    sumaPonderada += valorNota * criterio.Peso;
-                    pesoEvaluado += criterio.Peso; 
+                    decimal sumaPonderada = 0;
+                    decimal pesoTotalEvaluado = 0;
+
+                    foreach (var crit in periodo.Criterios)
+                    {
+                        var nota = notasDelAlumno.FirstOrDefault(n => n.CriterioEvaluacionId == crit.Id);
+                        if (nota != null)
+                        {
+                            sumaPonderada += nota.Valor * crit.Peso;
+                            pesoTotalEvaluado += crit.Peso;
+                        }
+                    }
+
+                    if (pesoTotalEvaluado > 0)
+                    {
+                        decimal promedioBimestre = sumaPonderada / pesoTotalEvaluado;
+                        promediosPorPeriodo[periodo.NumeroPeriodo] = Math.Round(promedioBimestre, 2);
+                    }
                 }
 
-                detalles.Add(new DetalleNotaDto
+                decimal promedioFinal = promediosPorPeriodo.Any()
+                    ? Math.Round(promediosPorPeriodo.Values.Average(), 2)
+                    : 0;
+
+                alumnosSabana.Add(new AlumnoSabanaDto
                 {
-                    Evaluacion = criterio.Nombre,
-                    Peso = criterio.Peso,
-                    NotaObtenida = valorNota 
+                    MatriculaId = mat.Id,
+                    EstudianteNombre = $"{mat.Estudiante.Apellidos}, {mat.Estudiante.Nombres}",
+                    Notas = notasDelAlumno.Select(n => new NotaRegistroDto
+                    {
+                        CriterioId = n.CriterioEvaluacionId,
+                        Valor = n.Valor
+                    }).ToList(),
+                    PromediosPorPeriodo = promediosPorPeriodo,
+                    PromedioFinalAnual = promedioFinal
                 });
             }
 
-            decimal promedioFinal = 0;
-            string estado = "Sin Notas";
-
-            if (pesoEvaluado > 0)
+            return Ok(new SabanaResponseDto
             {
-                promedioFinal = sumaPonderada / pesoEvaluado;
-                promedioFinal = Math.Round(promedioFinal, 2);
-                estado = promedioFinal >= 11 ? "APROBADO" : "DESAPROBADO";
+                Estructura = estructura,
+                Alumnos = alumnosSabana
+            });
+        }
+
+        [HttpGet("MisNotas/{cursoId}")]
+        public async Task<ActionResult<EstudianteCursoDetalleDto>> GetMisNotasCurso(int cursoId)
+        {
+            var userId = User.FindFirstValue("uid") ?? User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var esEstudiante = User.IsInRole("Estudiantil");
+
+            Matricula matricula = null;
+            if (esEstudiante)
+            {
+                matricula = await _context.Matriculas
+                    .Include(m => m.Estudiante)
+                    .FirstOrDefaultAsync(m => m.Estudiante.UsuarioId == userId);
             }
 
-            return Ok(new PromedioDto
+            if (matricula == null) return Forbid();
+
+            var curso = await _context.Cursos
+                .Include(c => c.Docente)
+                .FirstOrDefaultAsync(c => c.Id == cursoId);
+            if (curso == null) return NotFound("Curso no encontrado");
+
+            var criterios = await _context.CriteriosEvaluacion
+                .Where(c => c.CursoId == cursoId)
+                .OrderBy(c => c.NumeroPeriodo)
+                .ToListAsync();
+
+            var notas = await _context.Notas
+                .Where(n => n.MatriculaId == matricula.Id && n.CriterioEvaluacion.CursoId == cursoId)
+                .ToListAsync();
+
+            var respuesta = new EstudianteCursoDetalleDto
             {
-                Curso = nombreCurso,
-                PromedioFinal = promedioFinal,
-                Estado = estado,
-                Detalles = detalles
-            });
+                CursoNombre = curso.Nombre,
+                DocenteNombre = curso.Docente != null ? $"{curso.Docente.Nombres} {curso.Docente.Apellidos}" : "Por Asignar",
+                PromedioFinalAcumulado = 0,
+                Periodos = new List<PeriodoAlumnoDto>()
+            };
+
+            var gruposPeriodo = criterios.GroupBy(c => c.NumeroPeriodo).OrderBy(g => g.Key);
+
+            decimal sumaPromediosBimestrales = 0;
+            int cantidadBimestresConNota = 0;
+
+            foreach (var grupo in gruposPeriodo)
+            {
+                var periodoDto = new PeriodoAlumnoDto
+                {
+                    NumeroPeriodo = grupo.Key,
+                    NombrePeriodo = $"Bimestre {ToRoman(grupo.Key)}",
+                    Notas = new List<DetalleNotaAlumnoDto>()
+                };
+
+                decimal sumaPonderada = 0;
+                decimal pesoEvaluado = 0;
+
+                foreach (var crit in grupo)
+                {
+                    var notaDb = notas.FirstOrDefault(n => n.CriterioEvaluacionId == crit.Id);
+
+                    periodoDto.Notas.Add(new DetalleNotaAlumnoDto
+                    {
+                        Evaluacion = crit.Nombre,
+                        Peso = crit.Peso,
+                        Valor = notaDb?.Valor 
+                    });
+
+                    if (notaDb != null)
+                    {
+                        sumaPonderada += notaDb.Valor * crit.Peso;
+                        pesoEvaluado += crit.Peso;
+                    }
+                }
+
+                if (pesoEvaluado > 0)
+                {
+                    periodoDto.PromedioPeriodo = Math.Round(sumaPonderada / pesoEvaluado, 2);
+                    sumaPromediosBimestrales += periodoDto.PromedioPeriodo;
+                    cantidadBimestresConNota++;
+                }
+
+                respuesta.Periodos.Add(periodoDto);
+            }
+
+            if (cantidadBimestresConNota > 0)
+            {
+                respuesta.PromedioFinalAcumulado = Math.Round(sumaPromediosBimestrales / cantidadBimestresConNota, 2);
+                respuesta.EstadoFinal = respuesta.PromedioFinalAcumulado >= 11 ? "Aprobado" : "En Riesgo";
+            }
+
+            return Ok(respuesta);
+        }
+
+        [HttpPost("Masiva")]
+        [Authorize(Roles = "Academico,Administrativo")]
+        public async Task<ActionResult> PostNotasMasiva([FromBody] List<GuardarNotaMasivaDto> listaNotas)
+        {
+            if (listaNotas == null || !listaNotas.Any())
+                return BadRequest("No hay notas para guardar.");
+
+            using var transaction = await _context.Database.BeginTransactionAsync();
+            try
+            {
+                foreach (var dto in listaNotas)
+                {
+                    if (dto.Valor < 0 || dto.Valor > 20)
+                        throw new Exception($"Nota inválida: {dto.Valor}");
+
+                    var notaDb = await _context.Notas
+                        .FirstOrDefaultAsync(n => n.MatriculaId == dto.MatriculaId && n.CriterioEvaluacionId == dto.CriterioId);
+
+                    if (notaDb != null)
+                    {
+                        if (notaDb.Valor != dto.Valor)
+                        {
+                            notaDb.Valor = dto.Valor;
+                            _context.Entry(notaDb).State = EntityState.Modified;
+                        }
+                    }
+                    else
+                    {
+                        _context.Notas.Add(new Nota
+                        {
+                            MatriculaId = dto.MatriculaId,
+                            CriterioEvaluacionId = dto.CriterioId,
+                            Valor = dto.Valor
+                        });
+                    }
+                }
+
+                await _context.SaveChangesAsync();
+                await transaction.CommitAsync();
+                return Ok(new { mensaje = "Notas actualizadas correctamente." });
+            }
+            catch (Exception ex)
+            {
+                await transaction.RollbackAsync();
+                return StatusCode(500, $"Error al guardar: {ex.Message}");
+            }
         }
 
         [HttpGet("BoletaGlobal")]
@@ -171,86 +277,49 @@ namespace Escuela.API.Controllers
 
             if (matricula == null) return Ok(new List<object>());
 
-            var cursosDelGrado = await _context.Cursos
+            var cursos = await _context.Cursos
                 .Include(c => c.Docente)
                 .Where(c => c.GradoId == matricula.GradoId)
                 .ToListAsync();
 
             var notas = await _context.Notas
+                .Include(n => n.CriterioEvaluacion)
                 .Where(n => n.MatriculaId == matricula.Id)
-                .ToListAsync();
-
-            var cursoIds = cursosDelGrado.Select(c => c.Id).ToList();
-            var criteriosTodos = await _context.CriteriosEvaluacion
-                .Where(c => cursoIds.Contains(c.CursoId))
                 .ToListAsync();
 
             var boleta = new List<object>();
 
-            foreach (var curso in cursosDelGrado)
+            foreach (var curso in cursos)
             {
-                var criteriosCurso = criteriosTodos.Where(c => c.CursoId == curso.Id).ToList();
+                var notasCurso = notas.Where(n => n.CriterioEvaluacion.CursoId == curso.Id).ToList();
 
-                decimal sumaPonderada = 0;
-                decimal pesoAcumulado = 0;
+                decimal suma = 0;
+                decimal pesoTotal = 0;
 
-                foreach (var c in criteriosCurso)
+                foreach (var n in notasCurso)
                 {
-                    var nota = notas.FirstOrDefault(n => n.CriterioEvaluacionId == c.Id);
-                    if (nota != null)
-                    {
-                        sumaPonderada += nota.Valor * c.Peso;
-                        pesoAcumulado += c.Peso;
-                    }
+                    suma += n.Valor * n.CriterioEvaluacion.Peso;
+                    pesoTotal += n.CriterioEvaluacion.Peso;
                 }
 
-                decimal promedio = 0;
-                string estado = "Sin Notas";
-                string colorEstado = "secondary"; 
-
-                if (pesoAcumulado > 0)
-                {
-                    promedio = sumaPonderada / pesoAcumulado; 
-
-                    if (promedio >= 11)
-                    {
-                        estado = "Aprobado";
-                        colorEstado = "success"; 
-                    }
-                    else
-                    {
-                        estado = "Reprobado";
-                        colorEstado = "danger"; 
-                    }
-                }
-
-                decimal pesoTotalCurso = criteriosCurso.Sum(c => c.Peso);
-                decimal avance = pesoTotalCurso > 0 ? (pesoAcumulado / pesoTotalCurso) * 100 : 0;
+                decimal promedio = pesoTotal > 0 ? Math.Round(suma / pesoTotal, 2) : 0;
 
                 boleta.Add(new
                 {
+                    CursoId = curso.Id,
                     Curso = curso.Nombre,
-                    Docente = curso.Docente != null ? $"{curso.Docente.Nombres} {curso.Docente.Apellidos}" : "Por asignar",
-                    Promedio = Math.Round(promedio, 2),
-                    Estado = estado,
-                    ColorEstado = colorEstado, 
-                    Avance = Math.Round(avance, 0)
+                    Docente = curso.Docente?.Nombres ?? "N/A",
+                    Promedio = promedio,
+                    Estado = promedio >= 11 ? "Aprobado" : "Reprobado"
                 });
             }
 
             return Ok(boleta);
         }
 
-        [HttpPut("{id}")]
-        [Authorize(Roles = "Academico,Administrativo")]
-        public async Task<IActionResult> PutNota(int id, [FromBody] CrearNotaDto dto)
+        private string ToRoman(int number)
         {
-            var nota = await _context.Notas.FindAsync(id);
-            if (nota == null) return NotFound("Nota no encontrada.");
-
-            nota.Valor = dto.Valor;
-            await _context.SaveChangesAsync();
-            return Ok(new { mensaje = "Nota actualizada", nuevoValor = nota.Valor });
+            return number switch { 1 => "I", 2 => "II", 3 => "III", 4 => "IV", _ => number.ToString() };
         }
     }
 }

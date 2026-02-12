@@ -26,7 +26,6 @@ namespace Escuela.API.Controllers
             var userId = User.FindFirstValue("uid");
             var esEstudiante = User.IsInRole("Estudiantil");
             var esDocente = User.IsInRole("Academico");
-            var esAdmin = User.IsInRole("Administrativo");
 
             var query = _context.Cursos
                 .Include(c => c.Grado)
@@ -39,11 +38,7 @@ namespace Escuela.API.Controllers
                     .OrderByDescending(m => m.FechaMatricula)
                     .FirstOrDefaultAsync(m => m.Estudiante!.UsuarioId == userId);
 
-                if (matricula == null)
-                {
-                    return Ok(new List<CursoDto>());
-                }
-
+                if (matricula == null) return Ok(new List<CursoDto>());
                 query = query.Where(c => c.GradoId == matricula.GradoId);
             }
             else if (esDocente)
@@ -58,6 +53,9 @@ namespace Escuela.API.Controllers
                     Nombre = c.Nombre,
                     Descripcion = c.Descripcion ?? "Sin descripción",
                     Activo = c.Activo,
+
+                    GradoId = c.GradoId,
+
                     NombreGrado = c.Grado != null ? c.Grado.Nombre : "Grado No Asignado",
                     NombreDocente = c.Docente != null
                         ? $"{c.Docente.Nombres} {c.Docente.Apellidos}"
@@ -101,10 +99,9 @@ namespace Escuela.API.Controllers
                 Nombre = cursoDb.Nombre,
                 Descripcion = cursoDb.Descripcion ?? "Sin descripción",
                 Activo = cursoDb.Activo,
+                GradoId = cursoDb.GradoId, 
                 NombreGrado = cursoDb.Grado?.Nombre ?? "N/A",
-                NombreDocente = cursoDb.Docente != null
-                    ? $"{cursoDb.Docente.Nombres} {cursoDb.Docente.Apellidos}"
-                    : "Sin Docente"
+                NombreDocente = cursoDb.Docente != null ? $"{cursoDb.Docente.Nombres} {cursoDb.Docente.Apellidos}" : "Sin Docente"
             };
 
             return CreatedAtAction(nameof(GetCursos), new { id = respuesta.Id }, respuesta);

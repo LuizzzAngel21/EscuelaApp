@@ -14,5 +14,7 @@ namespace Escuela.API.Dtos
 
         [Required(ErrorMessage = "El ID del curso es obligatorio.")]
         public int CursoId { get; set; }
+
+        public int NumeroPeriodo { get; set; }
     }
 }

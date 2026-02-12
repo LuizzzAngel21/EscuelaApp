@@ -34,13 +34,24 @@ namespace Escuela.API.Controllers
                 .Include(h => h.Curso)
                 .ThenInclude(c => c.Grado)
                 .Include(h => h.Curso)
-                .ThenInclude(c => c.Docente) // Importante para sacar el nombre
+                .ThenInclude(c => c.Docente)
+                .Include(h => h.Seccion) 
                 .AsQueryable();
 
             if (esAlumno)
             {
-                query = query.Where(h => h.Curso!.Grado!.Matriculas
-                    .Any(m => m.Estudiante!.UsuarioId == userId));
+                var matricula = await _context.Matriculas
+                    .OrderByDescending(m => m.FechaMatricula)
+                    .FirstOrDefaultAsync(m => m.Estudiante!.UsuarioId == userId);
+
+                if (matricula != null)
+                {
+                    query = query.Where(h => h.SeccionId == matricula.SeccionId);
+                }
+                else
+                {
+                    return Ok(new List<HorarioDto>());
+                }
             }
             else if (esProfe)
             {
@@ -62,17 +73,21 @@ namespace Escuela.API.Controllers
                     HoraInicio = h.HoraInicio.ToString(@"hh\:mm"),
                     HoraFin = h.HoraFin.ToString(@"hh\:mm"),
                     Curso = h.Curso != null ? h.Curso.Nombre : "Sin Curso",
-                    Grado = h.Curso != null && h.Curso.Grado != null ? h.Curso.Grado.Nombre : "N/A",
-                    // NUEVO: Enviamos el nombre del docente si existe
+
+                    Grado = (h.Curso != null && h.Curso.Grado != null)
+                            ? $"{h.Curso.Grado.Nombre} - {(h.Seccion != null ? h.Seccion.Nombre : "Gral")}"
+                            : "N/A",
+
+                    CursoId = h.CursoId,
+
                     Docente = h.Curso != null && h.Curso.Docente != null
                         ? $"{h.Curso.Docente.Nombres} {h.Curso.Docente.Apellidos}"
-                        : ""
+                        : "Sin Docente"
                 }).ToListAsync();
 
             return Ok(horarios);
         }
 
-        // ... (El resto de métodos Post, PostMasivo y Delete quedan igual que antes) ...
         [HttpPost]
         [Authorize(Roles = "Administrativo,Academico")]
         public async Task<ActionResult<HorarioDto>> PostHorario(CrearHorarioDto dto)
@@ -82,18 +97,25 @@ namespace Escuela.API.Controllers
 
             if (fin <= inicio) return BadRequest("La hora de fin debe ser posterior al inicio.");
 
-            if (!await _context.Cursos.AnyAsync(c => c.Id == dto.CursoId))
-                return BadRequest("El curso especificado no existe.");
+            var seccion = await _context.Secciones.FindAsync(dto.SeccionId);
+            if (seccion == null) return BadRequest("La sección especificada no existe.");
 
-            if (await ExisteCruceHorario(dto.CursoId, dto.DiaSemana, inicio, fin))
-                return BadRequest($"Conflicto: El docente o el grado ya tienen clases el {dto.DiaSemana} en ese horario.");
+            var curso = await _context.Cursos.FindAsync(dto.CursoId);
+            if (curso == null) return BadRequest("El curso especificado no existe.");
+
+            if (curso.GradoId != seccion.GradoId)
+                return BadRequest("La sección seleccionada no corresponde al grado del curso.");
+
+            if (await ExisteCruceHorario(dto.CursoId, dto.SeccionId, dto.DiaSemana, inicio, fin))
+                return BadRequest($"Conflicto: El docente o la sección '{seccion.Nombre}' ya tienen clases el {dto.DiaSemana} en ese horario.");
 
             var nuevoHorario = new Horario
             {
                 DiaSemana = dto.DiaSemana,
                 HoraInicio = inicio,
                 HoraFin = fin,
-                CursoId = dto.CursoId
+                CursoId = dto.CursoId,
+                SeccionId = dto.SeccionId 
             };
 
             _context.Horarios.Add(nuevoHorario);
@@ -102,6 +124,7 @@ namespace Escuela.API.Controllers
             var horarioDb = await _context.Horarios
                 .Include(h => h.Curso).ThenInclude(c => c.Grado)
                 .Include(h => h.Curso).ThenInclude(c => c.Docente)
+                .Include(h => h.Seccion)
                 .FirstAsync(h => h.Id == nuevoHorario.Id);
 
             var respuesta = new HorarioDto
@@ -111,7 +134,8 @@ namespace Escuela.API.Controllers
                 HoraInicio = horarioDb.HoraInicio.ToString(@"hh\:mm"),
                 HoraFin = horarioDb.HoraFin.ToString(@"hh\:mm"),
                 Curso = horarioDb.Curso?.Nombre ?? "N/A",
-                Grado = horarioDb.Curso?.Grado?.Nombre ?? "N/A",
+                Grado = $"{horarioDb.Curso?.Grado?.Nombre} - {horarioDb.Seccion?.Nombre}",
+                CursoId = horarioDb.CursoId,
                 Docente = horarioDb.Curso?.Docente != null ? $"{horarioDb.Curso.Docente.Nombres} {horarioDb.Curso.Docente.Apellidos}" : ""
             };
 
@@ -125,9 +149,16 @@ namespace Escuela.API.Controllers
             if (dtos == null || !dtos.Any()) return BadRequest("Lista vacía.");
 
             var cursoIds = dtos.Select(d => d.CursoId).Distinct().ToList();
+            var seccionIds = dtos.Select(d => d.SeccionId).Distinct().ToList();
+
             var cursosInfo = await _context.Cursos
                 .Where(c => cursoIds.Contains(c.Id))
                 .Select(c => new { c.Id, c.GradoId, c.DocenteId })
+                .ToListAsync();
+
+            var seccionesInfo = await _context.Secciones
+                .Where(s => seccionIds.Contains(s.Id))
+                .Select(s => new { s.Id, s.GradoId })
                 .ToListAsync();
 
             var horariosExistentes = await _context.Horarios
@@ -147,21 +178,31 @@ namespace Escuela.API.Controllers
                 var curso = cursosInfo.FirstOrDefault(c => c.Id == dto.CursoId);
                 if (curso == null) { errores.Add($"Curso {dto.CursoId} no existe"); continue; }
 
+                var seccion = seccionesInfo.FirstOrDefault(s => s.Id == dto.SeccionId);
+                if (seccion == null) { errores.Add($"Sección {dto.SeccionId} no existe"); continue; }
+
+                if (curso.GradoId != seccion.GradoId)
+                {
+                    errores.Add($"Inconsistencia: El curso {dto.CursoId} y la sección {dto.SeccionId} son de grados distintos.");
+                    continue;
+                }
+
                 bool cruce = horariosExistentes.Any(h => h.DiaSemana == dto.DiaSemana &&
-                                                        (h.Curso!.GradoId == curso.GradoId || h.Curso.DocenteId == curso.DocenteId) &&
+                                                        (h.SeccionId == dto.SeccionId || h.Curso!.DocenteId == curso.DocenteId) &&
                                                         (inicio < h.HoraFin && fin > h.HoraInicio))
                              || nuevosHorarios.Any(h => h.DiaSemana == dto.DiaSemana &&
-                                                       (cursosInfo.First(c => c.Id == h.CursoId).GradoId == curso.GradoId) &&
+                                                       (h.SeccionId == dto.SeccionId || cursosInfo.First(c => c.Id == h.CursoId).DocenteId == curso.DocenteId) &&
                                                        (inicio < h.HoraFin && fin > h.HoraInicio));
 
-                if (cruce) { errores.Add($"Cruce detectado para el curso {dto.CursoId} el {dto.DiaSemana}"); continue; }
+                if (cruce) { errores.Add($"Cruce detectado para el curso {dto.CursoId} sección {dto.SeccionId} el {dto.DiaSemana}"); continue; }
 
                 nuevosHorarios.Add(new Horario
                 {
                     DiaSemana = dto.DiaSemana,
                     HoraInicio = inicio,
                     HoraFin = fin,
-                    CursoId = dto.CursoId
+                    CursoId = dto.CursoId,
+                    SeccionId = dto.SeccionId
                 });
             }
 
@@ -188,7 +229,7 @@ namespace Escuela.API.Controllers
             return NoContent();
         }
 
-        private async Task<bool> ExisteCruceHorario(int cursoId, string dia, TimeSpan inicio, TimeSpan fin)
+        private async Task<bool> ExisteCruceHorario(int cursoId, int seccionId, string dia, TimeSpan inicio, TimeSpan fin)
         {
             var curso = await _context.Cursos.FindAsync(cursoId);
             if (curso == null) return false;
@@ -196,7 +237,7 @@ namespace Escuela.API.Controllers
             return await _context.Horarios
                 .Include(h => h.Curso)
                 .AnyAsync(h => h.DiaSemana == dia &&
-                              (h.Curso.GradoId == curso.GradoId || h.Curso.DocenteId == curso.DocenteId) &&
+                              (h.SeccionId == seccionId || h.Curso.DocenteId == curso.DocenteId) &&
                               (inicio < h.HoraFin && fin > h.HoraInicio));
         }
     }

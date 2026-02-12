@@ -1,0 +1,111 @@
+﻿@{
+    ViewData["Title"] = "Registro de Notas";
+    Layout = "~/Views/Shared/_LayoutDocente.cshtml";
+}
+
+<input type="hidden" id="hdnCursoId" value="@Context.Request.Query["cursoId"]" />
+
+<div class="container-fluid px-4 py-4">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h3 class="fw-bold text-dark mb-0">Registro de Evaluación</h3>
+            <p class="text-muted small mb-0">Gestión académica y control de notas.</p>
+        </div>
+        <div id="panelConfiguracion" style="display:none;">
+            <a href="#" id="btnConfigurar" class="btn btn-white border shadow-sm btn-sm px-3 text-secondary fw-bold bg-white">
+                <i class="fa-solid fa-gear me-2"></i>Configuración
+            </a>
+        </div>
+    </div>
+
+    <div class="card border-0 shadow-sm" style="border-radius: 12px; overflow: hidden;">
+
+        <div class="card-header bg-white border-bottom p-4">
+            <div class="row g-3 align-items-end">
+                <div class="col-md-3">
+                    <label class="form-label small fw-bold text-muted text-uppercase">Materia</label>
+                    <select class="form-select" id="cboMateria"><option selected disabled>Cargando...</option></select>
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label small fw-bold text-muted text-uppercase">Grado</label>
+                    <select class="form-select" id="cboGrado" disabled><option>Esperando...</option></select>
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label small fw-bold text-muted text-uppercase">Sección</label>
+                    <select class="form-select" id="cboSeccion" disabled><option>Esperando...</option></select>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label small fw-bold text-muted text-uppercase">Buscar Alumno</label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-white border-end-0 text-muted"><i class="fa-solid fa-magnifying-glass"></i></span>
+                        <input type="text" id="txtBuscarAlumno" class="form-control border-start-0 ps-0" placeholder="Escribe para filtrar..." disabled>
+                    </div>
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label small fw-bold text-muted text-uppercase">Filas</label>
+                    <select class="form-select" id="cboMostrarFilas">
+                        <option value="10">10 filas</option>
+                        <option value="20">20 filas</option>
+                        <option value="Todos" selected>Todos</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div class="card-body p-0 border-bottom">
+
+            <div id="panelEstado" class="text-center py-5" style="display:none;"></div>
+
+            <div id="panelBienvenida" class="text-center py-5 bg-light bg-opacity-25">
+                <div class="py-4">
+                    <i class="fa-solid fa-arrow-up-right-from-square fa-3x text-muted opacity-25 mb-3"></i>
+                    <h5 class="fw-bold text-muted">Seleccione los filtros</h5>
+                    <p class="text-muted small mb-0">Elija Materia, Grado y Sección para visualizar el registro.</p>
+                </div>
+            </div>
+
+            <div class="table-responsive-sabana bg-white" id="contenedorTabla" style="display:none;">
+                <table class="table-sabana" id="tablaSabana">
+                    <thead>
+                        <tr id="rowHeaderPeriodos"></tr>
+                        <tr id="rowHeaderCriterios" class="sub-header"></tr>
+                    </thead>
+                    <tbody id="bodyAlumnos"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="card-footer bg-light py-3 px-4" id="footerControles" style="display:none;">
+            <div class="row align-items-center">
+                <div class="col-md-4 text-start">
+                    <span class="text-muted small fw-bold" id="lblContadorFilas">...</span>
+                </div>
+                <div class="col-md-4 text-center">
+                    <div id="paginacionContainer" class="d-inline-flex gap-1" style="display:none;">
+                        <button class="btn btn-sm btn-white border px-3" id="btnPrevPage" disabled>Anterior</button>
+                        <div id="paginasNumeros" class="btn-group"></div>
+                        <button class="btn btn-sm btn-white border px-3" id="btnNextPage" disabled>Siguiente</button>
+                    </div>
+                </div>
+                <div class="col-md-4 text-end">
+                    <button class="btn btn-guardar-footer fw-bold px-4 shadow-sm rounded-pill" id="btnGuardar" onclick="guardarNotasMasivas()">
+                        <i class="fa-solid fa-floppy-disk me-2"></i>Guardar Cambios
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="toastContainer" class="toast-container-custom d-none">
+        <div id="toastNotificacion" class="toast-custom">
+            <i class="fa-solid fa-circle-check text-success fs-5"></i>
+            <span class="fw-bold">Notas registradas correctamente.</span>
+        </div>
+    </div>
+
+</div>
+
+@section Scripts {
+    <script src="~/js/docente/notas.js"></script>
+}
