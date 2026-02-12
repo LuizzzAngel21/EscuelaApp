@@ -1,0 +1,112 @@
+﻿:root {
+    --color-primary: #1f3c88;
+    --color-dark: #1a1a1a;
+    --color-light: #f8f9fa;
+    --color-white: #ffffff;
+    --color-border: #e2e2e2;
+}
+
+body {
+    background-color: #f4f6f8;
+    font-family: 'Inter', sans-serif;
+    color: var(--color-dark);
+}
+
+.folder-wrapper {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+}
+
+.folder-card {
+    background: var(--color-white);
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+    padding: 3rem;
+    width: 100%;
+    max-width: 800px;
+    border: 1px solid var(--color-border);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+    .folder-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 30px rgba(31, 60, 136, 0.08);
+    }
+
+h2 {
+    font-family: 'Playfair Display', serif;
+    color: var(--color-primary);
+    font-weight: 700;
+}
+
+.form-label {
+    font-size: 0.75rem;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    font-weight: 600;
+    color: #666;
+}
+
+.form-control, .input-group-text {
+    border-radius: 6px;
+    border: 1px solid var(--color-border);
+    padding: 12px;
+    font-size: 0.95rem;
+    transition: all 0.2s ease;
+}
+
+    .form-control:focus {
+        border-color: var(--color-primary);
+        box-shadow: 0 0 0 3px rgba(31, 60, 136, 0.1);
+    }
+
+.input-group-text {
+    background-color: var(--color-white);
+    color: var(--color-primary);
+}
+
+.btn-institutional {
+    background-color: var(--color-primary);
+    color: var(--color-white);
+    border: none;
+    padding: 14px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    border-radius: 6px;
+    transition: all 0.3s ease;
+}
+
+    .btn-institutional:hover {
+        background-color: #162f6a;
+        color: var(--color-white);
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(31, 60, 136, 0.2);
+    }
+
+    .btn-institutional:disabled {
+        background-color: #999;
+        transform: none;
+        box-shadow: none;
+    }
+
+.section-title {
+    border-bottom: 2px solid var(--color-border);
+    padding-bottom: 10px;
+    margin-bottom: 20px;
+    color: var(--color-primary);
+    font-weight: 600;
+    font-size: 1.1rem;
+}
+
+.token-badge {
+    background-color: #f0f2f5;
+    color: var(--color-dark);
+    font-family: monospace;
+    padding: 6px 12px;
+    border-radius: 4px;
+    border: 1px solid var(--color-border);
+    font-size: 0.9rem;
+}

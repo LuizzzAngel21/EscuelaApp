@@ -1,0 +1,539 @@
+﻿:root {
+    --color-institutional: #0b2a4a;
+    --color-bg-body: #f4f6f8;
+    --color-bg-white: #ffffff;
+    --color-border: #e2e8f0;
+    --color-text-dark: #1e293b;
+    --color-text-muted: #64748b;
+    --sidebar-width: 250px;
+    --sidebar-collapsed-width: 70px;
+    --topbar-height: 64px;
+}
+
+body {
+    background-color: var(--color-bg-body);
+    font-family: 'Inter', sans-serif;
+    color: var(--color-text-dark);
+    margin: 0;
+    font-size: 0.93rem;
+}
+
+.app-container {
+    display: flex;
+    height: 100vh;
+    width: 100%;
+}
+
+.main-wrapper {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+}
+
+.page-content {
+    flex: 1;
+    padding: 24px;
+    overflow-y: auto;
+}
+
+.sidebar {
+    width: var(--sidebar-width);
+    background-color: var(--color-institutional);
+    color: white;
+    display: flex;
+    flex-direction: column;
+    transition: width 0.3s ease;
+    white-space: nowrap;
+    overflow: hidden;
+}
+
+    .sidebar.collapsed {
+        width: var(--sidebar-collapsed-width);
+    }
+
+.sidebar-header {
+    height: var(--topbar-height);
+    display: flex;
+    align-items: center;
+    padding: 0 20px;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+    font-size: 1.1rem;
+    font-weight: 600;
+}
+
+.sidebar-menu {
+    list-style: none;
+    padding: 16px 10px;
+    margin: 0;
+    overflow-y: auto;
+    flex: 1;
+}
+
+.menu-header {
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: rgba(255,255,255,0.5);
+    margin: 15px 0 5px 10px;
+    padding-left: 4px;
+}
+
+.sidebar.collapsed .menu-header, .sidebar.collapsed .link-text, .sidebar.collapsed .sidebar-brand-text {
+    display: none;
+}
+
+.sidebar-menu li a {
+    display: flex;
+    align-items: center;
+    padding: 12px 16px;
+    color: rgba(255,255,255,0.8);
+    text-decoration: none;
+    transition: 0.2s;
+    border-radius: 6px;
+    margin-bottom: 4px;
+}
+
+    .sidebar-menu li a:hover {
+        background-color: rgba(255,255,255,0.1);
+        color: white;
+    }
+
+    .sidebar-menu li a i {
+        width: 24px;
+        text-align: center;
+        margin-right: 12px;
+        font-size: 1.1rem;
+    }
+
+.topbar {
+    height: var(--topbar-height);
+    background-color: var(--color-bg-white);
+    border-bottom: 1px solid var(--color-border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 24px;
+}
+
+.avatar-circle {
+    width: 40px;
+    height: 40px;
+    border-radius: 8px; 
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--color-institutional);
+    color: white;
+    font-weight: 600;
+}
+
+.user-dropdown-menu {
+    position: absolute;
+    top: 70px;
+    right: 24px;
+    width: 260px;
+    background: white;
+    border: 1px solid var(--color-border);
+    border-radius: 8px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+    display: none;
+    z-index: 1000;
+}
+
+    .user-dropdown-menu.show {
+        display: block;
+    }
+
+.dropdown-header {
+    background: #f8fafc;
+    padding: 16px;
+    border-bottom: 1px solid var(--color-border);
+}
+
+.user-dropdown-menu a {
+    display: flex;
+    align-items: center;
+    padding: 12px 16px;
+    color: var(--color-text-dark);
+    text-decoration: none;
+    transition: background 0.2s;
+}
+
+    .user-dropdown-menu a:hover {
+        background-color: #f1f5f9;
+    }
+
+.card-admin {
+    background: white;
+    border: 1px solid var(--color-border);
+    border-radius: 8px;
+    padding: 24px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.03);
+}
+
+
+
+
+/* Lista de Grados */
+.list-group-item-action {
+    cursor: pointer;
+    border-left: 3px solid transparent;
+    transition: all 0.2s ease;
+    font-weight: 500;
+    color: var(--text-muted);
+}
+
+    .list-group-item-action:hover {
+        background-color: #f8fafc;
+        color: var(--admin-primary);
+        padding-left: 1.25rem; /* Pequeño desplazamiento a la derecha */
+    }
+
+    .list-group-item-action.active {
+        background-color: #f1f5f9; 
+        color: var(--admin-primary); 
+        border-color: var(--border-color);
+        border-left-color: var(--admin-primary); /* Borde izquierdo azul */
+        font-weight: 700;
+    }
+
+/* Iconos en la lista */
+.grade-icon {
+    width: 24px;
+    display: inline-block;
+    color: #cbd5e1;
+}
+
+.list-group-item-action.active .grade-icon {
+    color: var(--admin-primary);
+}
+
+/* Modal form adjustments */
+.modal-content {
+    border-radius: 12px;
+}
+
+
+
+/* Badges de Pago */
+.badge-pago-ok {
+    background-color: rgba(25, 135, 84, 0.1);
+    color: #198754;
+    border: 1px solid rgba(25, 135, 84, 0.2);
+    font-weight: 600;
+    padding: 0.4rem 0.8rem;
+}
+
+.badge-pago-pending {
+    background-color: rgba(220, 53, 69, 0.1);
+    color: #dc3545;
+    border: 1px solid rgba(220, 53, 69, 0.2);
+    font-weight: 600;
+    padding: 0.4rem 0.8rem;
+}
+
+/* Botones de Acción Elegantes */
+.btn-action-admin {
+    width: 35px;
+    height: 35px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    transition: all 0.2s;
+    background: transparent;
+    border: 1px solid #dee2e6;
+    color: #6c757d;
+}
+
+.btn-action-view:hover {
+    color: var(--admin-primary);
+    border-color: var(--admin-primary);
+    background-color: rgba(11, 42, 74, 0.05);
+}
+
+.btn-action-observe:hover {
+    color: #f59e0b;
+    border-color: #f59e0b;
+    background-color: rgba(245, 158, 11, 0.05);
+}
+
+.btn-action-approve:hover {
+    color: #198754;
+    border-color: #198754;
+    background-color: rgba(25, 135, 84, 0.05);
+}
+
+.btn-action-approve:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+}
+
+/* Visualizador de documentos en Modal */
+.doc-preview-container {
+    background-color: #f8fafc;
+    border: 2px dashed #e2e8f0;
+    border-radius: 12px;
+    min-height: 300px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+
+    .doc-preview-container img {
+        max-width: 100%;
+        height: auto;
+    }
+
+
+/* Tabla de Horarios */
+.timetable {
+    table-layout: fixed;
+    border-collapse: separate;
+    border-spacing: 0;
+    border: 1px solid #dee2e6;
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+    .timetable thead th {
+        background-color: var(--admin-primary);
+        color: #ffffff;
+        text-transform: uppercase;
+        font-size: 0.8rem;
+        letter-spacing: 1px;
+        padding: 15px;
+        border: none;
+    }
+
+    .timetable td {
+        height: 110px;
+        border: 0.5px solid #f0f0f0;
+        vertical-align: middle;
+        position: relative;
+        background-color: #fff;
+    }
+
+.time-col {
+    background-color: var(--admin-accent) !important;
+    font-weight: 700;
+    color: var(--admin-primary);
+    font-size: 0.75rem;
+}
+
+/* Filas de Recreo */
+.recreo-row td {
+    background-color: #fdfaf3 !important;
+    color: var(--admin-secondary);
+    font-weight: 800;
+    font-size: 0.9rem;
+    height: 45px;
+    border-top: 2px solid #f1e6d0;
+    border-bottom: 2px solid #f1e6d0;
+}
+
+/* Tarjetas de Clase */
+.class-card {
+    background-color: #ffffff;
+    border: 1px solid #e0e0e0;
+    border-left: 5px solid var(--admin-secondary);
+    margin: 4px;
+    padding: 10px;
+    border-radius: 8px;
+    height: calc(100% - 8px);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+    .class-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        background-color: #fffdf9;
+    }
+
+    .class-card .curso {
+        font-weight: 700;
+        color: var(--admin-primary);
+        font-size: 0.8rem;
+        line-height: 1.1;
+        margin-bottom: 5px;
+    }
+
+    .class-card .docente {
+        font-size: 0.65rem;
+        color: #6c757d;
+        text-transform: uppercase;
+    }
+
+/* Botones de acción */
+.btn-delete-class {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    color: #adb5bd;
+    transition: 0.2s;
+    font-size: 0.75rem;
+}
+
+    .btn-delete-class:hover {
+        color: var(--admin-danger);
+    }
+
+.btn-add-class {
+    background-color: transparent;
+    border: 2px dashed #e0e0e0;
+    color: #ced4da;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    transition: 0.3s;
+}
+
+    .btn-add-class:hover {
+        border-color: var(--admin-secondary);
+        color: var(--admin-secondary);
+        background-color: #fff;
+        transform: scale(1.1);
+    }
+
+
+
+/* Tarjetas de Indicadores (Métricas) */
+.dash-card {
+    background: #ffffff;
+    border: none;
+    border-radius: 16px;
+    padding: 1.5rem;
+    display: flex;
+    align-items: center;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+}
+
+    .dash-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 24px rgba(11, 42, 74, 0.1);
+    }
+
+.dash-icon-shape {
+    width: 60px;
+    height: 60px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    margin-right: 1.25rem;
+}
+
+/* Colores para Iconos según tipo */
+.bg-dash-primary {
+    background-color: rgba(11, 42, 74, 0.1);
+    color: var(--admin-primary);
+}
+
+.bg-dash-secondary {
+    background-color: rgba(197, 160, 89, 0.1);
+    color: var(--admin-secondary);
+}
+
+.bg-dash-success {
+    background-color: rgba(46, 125, 50, 0.1);
+    color: var(--admin-success);
+}
+
+.bg-dash-warning {
+    background-color: rgba(211, 47, 47, 0.1);
+    color: var(--admin-danger);
+}
+
+.dash-count {
+    font-size: 1.75rem;
+    font-weight: 800;
+    color: var(--admin-primary);
+    line-height: 1;
+    margin-bottom: 0.25rem;
+}
+
+.dash-label {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: #6c757d;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Contenedores de Gráficos */
+.chart-container {
+    background: #ffffff;
+    border-radius: 20px;
+    padding: 1.5rem;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+    height: 100%;
+}
+
+.chart-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+
+.chart-title {
+    font-weight: 700;
+    color: var(--admin-primary);
+    font-size: 1rem;
+    margin: 0;
+}
+
+canvas {
+    max-width: 100% !important;
+}
+
+/* Timeline o Actividad Reciente */
+.activity-item {
+    padding: 12px 0;
+    border-bottom: 1px solid #f8f9fa;
+    display: flex;
+    align-items: center;
+}
+
+    .activity-item:last-child {
+        border-bottom: none;
+    }
+
+.activity-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    margin-right: 15px;
+}
+
+.loading-shimmer {
+    background: #f6f7f8;
+    background-image: linear-gradient(to right, #f6f7f8 0%, #edeef1 20%, #f6f7f8 40%, #f6f7f8 100%);
+    background-repeat: no-repeat;
+    background-size: 800px 104px;
+    display: inline-block;
+    position: relative;
+    animation-duration: 1s;
+    animation-fill-mode: forwards;
+    animation-iteration-count: infinite;
+    animation-name: placeholderShimmer;
+    animation-timing-function: linear;
+}
+
+@keyframes placeholderShimmer {
+    0% {
+        background-position: -468px 0;
+    }
+
+    100% {
+        background-position: 468px 0;
+    }
+}

@@ -31,6 +31,8 @@ namespace Escuela.API.Controllers
         [HttpGet("Pendientes")]
         public async Task<IActionResult> GetSolicitudesPendientes()
         {
+            var baseUrl = $"{Request.Scheme}://{Request.Host}/";
+
             var pendientes = await _context.SolicitudesMatricula
                 .Where(s => s.Estado == EstadoSolicitud.EnRevision)
                 .Select(s => new
@@ -38,10 +40,23 @@ namespace Escuela.API.Controllers
                     s.Id,
                     s.Dni,
                     NombreCompleto = $"{s.Nombres} {s.Apellidos}",
-                    s.UrlFotoDni,
-                    s.UrlConstanciaNotas,
+
+                    UrlFotoDni = s.UrlFotoDni != null
+                        ? $"{baseUrl}{s.UrlFotoDni.Replace("wwwroot\\", "").Replace("wwwroot/", "").Replace("\\", "/")}"
+                        : null,
+
+                    UrlConstanciaNotas = s.UrlConstanciaNotas != null
+                        ? $"{baseUrl}{s.UrlConstanciaNotas.Replace("wwwroot\\", "").Replace("wwwroot/", "").Replace("\\", "/")}"
+                        : null,
+
+                    UrlSeguroMedico = s.UrlSeguroMedico != null
+                        ? $"{baseUrl}{s.UrlSeguroMedico.Replace("wwwroot\\", "").Replace("wwwroot/", "").Replace("\\", "/")}"
+                        : null,
+
                     Pago = s.PagoRealizado ? "OK" : "PENDIENTE",
-                    Fecha = s.FechaSolicitud.ToShortDateString()
+                    Fecha = s.FechaSolicitud.ToShortDateString(),
+                    s.GradoId,
+                    NombreGrado = s.Grado != null ? s.Grado.Nombre : "No asignado"
                 })
                 .ToListAsync();
 
@@ -82,7 +97,7 @@ namespace Escuela.API.Controllers
             solicitud.Observaciones = dto.MensajeError;
             await _context.SaveChangesAsync();
 
-            string linkSubsanacion = $"http://localhost:5173/admision/carpeta?token={solicitud.TokenSeguimiento}";
+            string linkSubsanacion = $"http://localhost:5000/Matricula/carpeta?token={solicitud.TokenSeguimiento}";
             string mensajeWhatsapp = $"Estimado apoderado de {solicitud.Nombres}. Hemos revisado sus documentos y tenemos una observación: *{dto.MensajeError}*. Por favor, corrija los documentos ingresando aquí: {linkSubsanacion}";
             string urlWhatsapp = $"https://wa.me/51{solicitud.TelefonoApoderado}?text={Uri.EscapeDataString(mensajeWhatsapp)}";
 
@@ -110,6 +125,8 @@ namespace Escuela.API.Controllers
 
             string usuarioNombre = $"{solicitud.Nombres.Split(' ')[0].ToLower()}.{solicitud.Apellidos.Split(' ')[0].ToLower()}@escuela.com";
             string passwordInicial = solicitud.Dni;
+
+            Matricula matricula = null;
 
             if (await _userManager.FindByNameAsync(usuarioNombre) == null)
             {
@@ -139,7 +156,7 @@ namespace Escuela.API.Controllers
                 _context.Estudiantes.Add(estudiante);
                 await _context.SaveChangesAsync();
 
-                var matricula = new Matricula
+                matricula = new Matricula
                 {
                     EstudianteId = estudiante.Id,
                     GradoId = solicitud.GradoId,
@@ -159,7 +176,11 @@ namespace Escuela.API.Controllers
             await _emailService.SendEmailAsync(solicitud.EmailPersonal, "¡Bienvenido a la Institución Educativa Alfred Nobel! - Credenciales",
                 $"<h1>Matrícula Aprobada</h1><p>Usuario: {usuarioNombre}</p><p>Clave: {passwordInicial}</p><p>Ya puede ingresar al intranet para ver sus pensiones.</p>");
 
-            return Ok(new { mensaje = "Matrícula finalizada y cronograma de pagos generado." });
+            return Ok(new
+            {
+                mensaje = "Matrícula finalizada y cronograma de pagos generado.",
+                matriculaId = matricula?.Id
+            });
         }
 
         [HttpPost("Directa")]

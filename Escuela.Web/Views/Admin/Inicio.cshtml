@@ -1,0 +1,91 @@
+﻿@{
+    ViewData["Title"] = "Panel de Control";
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+}
+
+<div class="container-fluid px-4 py-4">
+    <div class="mb-4">
+        <h2 class="fw-bold text-dark">Bienvenido al Panel Administrativo</h2>
+        <p class="text-muted">Resumen operativo de la Institución Educativa Alfred Nobel.</p>
+    </div>
+
+    <div class="row g-4 mb-5">
+        <div class="col-xl-3 col-md-6">
+            <div class="dash-card shadow-sm">
+                <div class="dash-icon-shape bg-dash-primary">
+                    <i class="fa-solid fa-user-graduate"></i>
+                </div>
+                <div>
+                    <div id="countMatriculados" class="dash-count">0</div>
+                    <div class="dash-label">Matriculados 2026</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6">
+            <div class="dash-card shadow-sm">
+                <div class="dash-icon-shape bg-dash-warning">
+                    <i class="fa-solid fa-folder-tree"></i>
+                </div>
+                <div>
+                    <div id="countPendientes" class="dash-count">0</div>
+                    <div class="dash-label">Solicitudes Web</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6">
+            <div class="dash-card shadow-sm">
+                <div class="dash-icon-shape bg-dash-secondary">
+                    <i class="fa-solid fa-chalkboard-user"></i>
+                </div>
+                <div>
+                    <div id="countClasesHoy" class="dash-count">0</div>
+                    <div class="dash-label">Sesiones Hoy</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6">
+            <div class="dash-card shadow-sm">
+                <div class="dash-icon-shape bg-dash-success">
+                    <i class="fa-solid fa-sack-dollar"></i>
+                </div>
+                <div>
+                    <div class="dash-count">S/ 0</div>
+                    <div class="dash-label">Recaudación Mes</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-xl-8 col-lg-7">
+            <div class="chart-container shadow-sm">
+                <div class="chart-header">
+                    <h5 class="chart-title"><i class="fa-solid fa-chart-bar me-2"></i>Ocupación de Vacantes por Grado</h5>
+                    <span class="badge bg-light text-dark border">Año Escolar 2026</span>
+                </div>
+                <div style="height: 300px;">
+                    <canvas id="chartVacantes"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-4 col-lg-5">
+            <div class="chart-container shadow-sm">
+                <div class="chart-header">
+                    <h5 class="chart-title"><i class="fa-solid fa-filter me-2"></i>Estado de Admisión</h5>
+                </div>
+                <div style="height: 300px; position: relative;">
+                    <canvas id="chartAdmision"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="~/js/admin/inicio.js"></script>
+}

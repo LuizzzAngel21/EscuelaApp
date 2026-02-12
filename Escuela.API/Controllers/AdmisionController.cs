@@ -50,7 +50,7 @@ namespace Escuela.API.Controllers
             _context.SolicitudesMatricula.Add(solicitud);
             await _context.SaveChangesAsync();
 
-            string linkSeguimiento = $"http://localhost:5173/admision/carpeta?token={tokenSeguimiento}";
+            string linkSeguimiento = $"http://localhost:5000/Matricula/carpeta?token={tokenSeguimiento}";
 
             string asunto = "Admisión 2026 - Continúa tu trámite";
             string cuerpo = $@"
@@ -71,5 +71,7 @@ namespace Escuela.API.Controllers
                 token = tokenSeguimiento
             });
         }
+
+
     }
 }

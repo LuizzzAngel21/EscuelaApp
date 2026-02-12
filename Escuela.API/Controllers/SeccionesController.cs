@@ -74,11 +74,70 @@ namespace Escuela.API.Controllers
         {
             var secciones = await _context.Secciones
                 .Where(s => s.GradoId == gradoId)
-                .Select(s => new { s.Id, s.Nombre }) 
+                .Select(s => new { s.Id, s.Nombre, s.Capacidad }) 
                 .OrderBy(s => s.Nombre)
                 .ToListAsync();
 
             return Ok(secciones);
+        }
+
+        [HttpPut("{id}")]
+        [Authorize(Roles = "Administrativo")]
+        public async Task<IActionResult> PutSeccion(int id, [FromBody] CrearSeccionDto dto)
+        {
+            var seccion = await _context.Secciones.FindAsync(id);
+
+            if (seccion == null)
+                return NotFound("La sección no existe.");
+
+            if (seccion.Nombre != dto.Nombre)
+            {
+                bool existeNombre = await _context.Secciones
+                    .AnyAsync(s => s.GradoId == seccion.GradoId && s.Nombre == dto.Nombre);
+
+                if (existeNombre)
+                    return BadRequest($"Ya existe una sección '{dto.Nombre}' en este grado.");
+            }
+
+            seccion.Nombre = dto.Nombre;
+            seccion.Capacidad = dto.Capacidad;
+
+            try
+            {
+                await _context.SaveChangesAsync();
+                return Ok(new { mensaje = "Sección actualizada correctamente." });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Error interno al actualizar.");
+            }
+        }
+
+        [HttpDelete("{id}")]
+        [Authorize(Roles = "Administrativo")]
+        public async Task<IActionResult> DeleteSeccion(int id)
+        {
+            var seccion = await _context.Secciones.FindAsync(id);
+
+            if (seccion == null)
+                return NotFound("La sección no existe.");
+
+            bool tieneAlumnos = await _context.Matriculas.AnyAsync(m => m.SeccionId == id);
+            if (tieneAlumnos)
+            {
+                return BadRequest("No se puede eliminar: Esta sección tiene alumnos matriculados. Primero debe moverlos o anular sus matrículas.");
+            }
+
+            bool tieneHorarios = await _context.Horarios.AnyAsync(h => h.SeccionId == id);
+            if (tieneHorarios)
+            {
+                return BadRequest("No se puede eliminar: Hay horarios de clase configurados para esta sección. Elimine los horarios primero.");
+            }
+
+            _context.Secciones.Remove(seccion);
+            await _context.SaveChangesAsync();
+
+            return Ok(new { mensaje = "Sección eliminada correctamente." });
         }
     }
 }

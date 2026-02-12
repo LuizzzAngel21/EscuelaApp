@@ -25,9 +25,24 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const btnTabExpediente = document.getElementById('expediente-tab');
     if (btnTabExpediente) {
-        btnTabExpediente.addEventListener('click', () => {
-            const estudianteId = localStorage.getItem("estudianteId") || payload.estudianteId || 101;
-            cargarExpedientes(estudianteId);
+        btnTabExpediente.addEventListener('click', async () => {
+            const tokenLocal = localStorage.getItem("tokenEscuela");
+
+            try {
+                const res = await fetch(`${API_BASE_URL}/Matriculas/MiMatriculaActual`, {
+                    headers: { "Authorization": `Bearer ${tokenLocal}` }
+                });
+
+                if (res.ok) {
+                    const data = await res.json();
+                    const realEstudianteId = data.estudianteId || data.id;
+                    cargarExpedientes(realEstudianteId);
+                } else {
+                    console.error("No se pudo obtener el ID numérico del estudiante");
+                }
+            } catch (e) {
+                console.error("Error de conexión al buscar ID", e);
+            }
         });
     }
 

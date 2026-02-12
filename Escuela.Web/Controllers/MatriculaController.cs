@@ -8,5 +8,13 @@ namespace Escuela.Web.Controllers
         {
             return View();
         }
+
+        [HttpGet]
+        public IActionResult Carpeta(string token)
+        {
+            ViewBag.Token = token;
+            return View(); 
+        }
+
     }
 }

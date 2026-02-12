@@ -1,110 +1,97 @@
 ﻿document.addEventListener("DOMContentLoaded", () => {
 
-    // Datepicker
     flatpickr("#fechaNacimiento", {
         dateFormat: "Y-m-d",
-        maxDate: "today"
+        maxDate: "2018-12-31", 
+        locale: { firstDayOfWeek: 1 }
     });
 
-    // Referencias
     const nivelSelect = document.getElementById("nivel");
     const gradoSelect = document.getElementById("grado");
     const form = document.getElementById("admisionForm");
 
-    // Lógica de grados por nivel
-    const gradosPorNivel = {
-        Inicial: ["4 años", "5 años"],
-        Primaria: [
-            "1ro Primaria",
-            "2do Primaria",
-            "3ro Primaria",
-            "4to Primaria",
-            "5to Primaria",
-            "6to Primaria"
-        ],
+    const dataGrados = {
         Secundaria: [
-            "1ro Secundaria",
-            "2do Secundaria",
-            "3ro Secundaria",
-            "4to Secundaria",
-            "5to Secundaria"
+            { id: 1, nombre: "1ro Secundaria" },
+            { id: 2, nombre: "2do Secundaria" },
+            { id: 3, nombre: "3ro Secundaria" },
+            { id: 4, nombre: "4to Secundaria" },
+            { id: 5, nombre: "5to Secundaria" }
         ]
     };
 
-    // Nivel → Grado
-    nivelSelect.addEventListener("change", () => {
-        gradoSelect.innerHTML = '<option value="">Seleccione un grado</option>';
+    nivelSelect.addEventListener("change", function () {
+        gradoSelect.innerHTML = '<option value="">Seleccione Grado...</option>';
+        const nivel = this.value;
 
-        const grados = gradosPorNivel[nivelSelect.value];
-        if (!grados) return;
-
-        grados.forEach(grado => {
-            const option = document.createElement("option");
-            option.value = grado;
-            option.textContent = grado;
-            gradoSelect.appendChild(option);
-        });
+        if (nivel && dataGrados[nivel]) {
+            gradoSelect.disabled = false;
+            dataGrados[nivel].forEach(item => {
+                const opt = document.createElement("option");
+                opt.value = item.id;
+                opt.textContent = item.nombre;
+                gradoSelect.appendChild(opt);
+            });
+        } else {
+            gradoSelect.disabled = true;
+            gradoSelect.innerHTML = '<option value="">Esperando Nivel...</option>';
+        }
     });
 
-    // Validaciones numéricas
-    document.getElementById("dni").addEventListener("input", e => {
-        e.target.value = e.target.value.replace(/\D/g, "");
-    });
+    document.getElementById("dni").addEventListener("input", function () { this.value = this.value.replace(/\D/g, ""); });
+    document.getElementById("telefono").addEventListener("input", function () { this.value = this.value.replace(/\D/g, ""); });
 
-    document.getElementById("telefono").addEventListener("input", e => {
-        e.target.value = e.target.value.replace(/\D/g, "");
-    });
-
-    // Submit
-    form.addEventListener("submit", e => {
+    form.addEventListener("submit", async (e) => {
         e.preventDefault();
 
-        const data = {
-            dni: dni.value,
-            nombres: nombres.value,
-            apellidos: apellidos.value,
-            fechaNacimiento: fechaNacimiento.value,
-            telefono: telefono.value,
-            correo: correo.value,
-            grado: gradoSelect.value
+        const payload = {
+            Dni: document.getElementById("dni").value,
+            Nombres: document.getElementById("nombres").value,
+            Apellidos: document.getElementById("apellidos").value,
+            FechaNacimiento: document.getElementById("fechaNacimiento").value,
+            TelefonoApoderado: document.getElementById("telefono").value,
+            EmailPersonal: document.getElementById("correo").value,
+            GradoId: parseInt(gradoSelect.value) 
         };
 
-        if (data.dni.length !== 8) {
-            Swal.fire("Error", "El DNI debe tener 8 dígitos", "warning");
-            return;
-        }
+        if (payload.Dni.length !== 8) return Swal.fire("Error", "El DNI debe tener 8 dígitos.", "warning");
+        if (payload.TelefonoApoderado.length !== 9) return Swal.fire("Error", "El teléfono debe tener 9 dígitos.", "warning");
 
-        if (data.telefono.length !== 9) {
-            Swal.fire("Error", "El teléfono debe tener 9 dígitos", "warning");
-            return;
-        }
+        const btn = form.querySelector("button[type='submit']");
+        const btnOriginal = btn.innerHTML;
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Enviando...';
 
-        fetch("/Admision/Solicitar", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(data)
-        })
-            .then(res => {
-                if (res.status === 409) {
-                    Swal.fire(
-                        "Solicitud existente",
-                        "Ya existe una solicitud registrada con este DNI",
-                        "info"
-                    );
-                    throw new Error("DNI duplicado");
-                }
-                return res.json();
-            })
-            .then(() => {
-                Swal.fire(
-                    "Solicitud recibida",
-                    "Hemos enviado un correo con la confirmación",
-                    "success"
-                );
-                form.reset();
-                gradoSelect.innerHTML = '<option value="">Seleccione un grado</option>';
-            })
-            .catch(() => { });
+        try {
+            const res = await fetch(`${API_BASE_URL}/Admision/Solicitar`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(payload)
+            });
+
+            if (res.ok) {
+                Swal.fire({
+                    title: "¡Solicitud Recibida!",
+                    html: `Hemos enviado un correo a <b>${payload.EmailPersonal}</b> con tu código de seguimiento.<br><br>Por favor revisa tu bandeja.`,
+                    icon: "success",
+                    confirmButtonColor: "#1f3c88"
+                }).then(() => {
+                    form.reset();
+                    gradoSelect.innerHTML = '<option value="">Esperando Nivel...</option>';
+                    gradoSelect.disabled = true;
+                });
+            } else {
+                const errorText = await res.text();
+                Swal.fire("Atención", errorText.replace(/"/g, ""), "warning");
+            }
+        } catch (error) {
+            console.error(error);
+            Swal.fire("Error de Conexión", "No se pudo conectar con el servidor.", "error");
+        } finally {
+            btn.disabled = false;
+            btn.innerHTML = btnOriginal;
+        }
     });
-
 });

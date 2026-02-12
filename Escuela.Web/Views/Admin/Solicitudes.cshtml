@@ -1,0 +1,111 @@
+﻿@{
+    ViewData["Title"] = "Bandeja de Admisión";
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+}
+
+<div class="card card-admin border-0 shadow-sm">
+    <div class="card-header bg-white pt-4 pb-3 px-4 border-bottom-0">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h5 class="fw-bold text-institutional m-0">Solicitudes de Matrícula</h5>
+                <p class="text-muted small mb-0">Gestión de postulantes en revisión y procesos de inscripción.</p>
+            </div>
+            <div class="search-box">
+                <input type="text" class="form-control form-control-sm" placeholder="Buscar por DNI o Nombre..." id="txtBusqueda">
+            </div>
+        </div>
+    </div>
+
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-admin align-middle">
+                <thead>
+                    <tr>
+                        <th class="ps-4">Postulante</th>
+                        <th>Grado Solicitado</th>
+                        <th class="text-center">Pago Admisión</th>
+                        <th>Fecha Registro</th>
+                        <th class="text-end pe-4">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody id="tbodySolicitudes">
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalExpediente" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg">
+            <div class="modal-header border-bottom-0 pt-4 px-4">
+                <h5 class="modal-title fw-bold text-institutional">Expediente de Admisión</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body px-4 pb-4">
+                <div class="row g-4">
+                    <div class="col-md-5">
+                        <h6 class="fw-bold small text-muted text-uppercase mb-3">Información del Postulante</h6>
+                        <div class="p-3 rounded-3 border bg-light">
+                            <p class="mb-2 small"><span class="text-muted">Nombre:</span> <br><strong id="expNombre">...</strong></p>
+                            <p class="mb-2 small"><span class="text-muted">DNI:</span> <br><strong id="expDni">...</strong></p>
+                            <p class="mb-0 small"><span class="text-muted">Estado Pago:</span> <br><span id="expPago">...</span></p>
+                        </div>
+                        <div class="mt-4">
+                            <button class="btn btn-outline-secondary btn-sm w-100 mb-2" onclick="verDocumento('dni')">Visualizar DNI</button>
+                            <button class="btn btn-outline-secondary btn-sm w-100 mb-2" onclick="verDocumento('notas')">Ver Constancia de Notas</button>
+                            <button class="btn btn-outline-secondary btn-sm w-100 mb-2" onclick="verDocumento('seguro')">Ver Seguro (SIS/EsSalud)</button>
+
+                        </div>
+                    </div>
+                    <div class="col-md-7">
+                        <h6 class="fw-bold small text-muted text-uppercase mb-3">Vista Previa de Documento</h6>
+                        <div class="doc-preview-container" id="docPreview">
+                            <span class="text-muted small">Seleccione un documento para revisar</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalAprobar" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0">
+            <div class="modal-header bg-light border-bottom-0">
+                <h5 class="modal-title fw-bold text-institutional">Finalizar Matrícula</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body p-4">
+                <p class="small text-muted mb-4">Se creará el acceso al intranet y se generará el cronograma de pagos para el estudiante.</p>
+                <form id="formAprobar">
+                    <input type="hidden" id="solicitudIdAprobar">
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold text-muted">GRADO DESTINO</label>
+                        <input type="text" class="form-control bg-light" id="txtGradoAprobar" readonly>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold text-muted">ASIGNAR SECCIÓN</label>
+                        <select class="form-select" id="cboSeccionAprobar" required>
+                            <option value="">Cargando secciones...</option>
+                        </select>
+                    </div>
+                    <div class="mb-4">
+                        <label class="form-label small fw-bold text-muted">PERIODO ACADÉMICO</label>
+                        <select class="form-select" id="cboPeriodoAprobar" required>
+                        </select>
+                    </div>
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-institutional py-2">Confirmar e Inscribir Estudiante</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="~/js/admin/solicitudes.js"></script>
+}

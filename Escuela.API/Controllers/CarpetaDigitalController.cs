@@ -73,6 +73,33 @@ namespace Escuela.API.Controllers
             });
         }
 
+
+        [HttpGet("Consultar/{token}")]
+        public async Task<IActionResult> ConsultarEstado(Guid token)
+        {
+            var solicitud = await _context.SolicitudesMatricula
+                .FirstOrDefaultAsync(s => s.TokenSeguimiento == token);
+
+            if (solicitud == null) return NotFound("El enlace no es válido.");
+
+            var dto = new CarpetaEstadoDto
+            {
+                Nombres = solicitud.Nombres,
+                Apellidos = solicitud.Apellidos,
+                Dni = solicitud.Dni,
+                PagoRealizado = solicitud.PagoRealizado,
+
+                ExisteFotoDni = !string.IsNullOrEmpty(solicitud.UrlFotoDni),
+                ExisteConstancia = !string.IsNullOrEmpty(solicitud.UrlConstanciaNotas),
+                ExisteSeguro = !string.IsNullOrEmpty(solicitud.UrlSeguroMedico),
+
+                Observaciones = solicitud.Observaciones,
+                Estado = solicitud.Estado.ToString()
+            };
+
+            return Ok(dto);
+        }
+
         private async Task<string> GuardarArchivo(IFormFile archivo, string carpetaDestino)
         {
             string nombreArchivo = $"{Guid.NewGuid()}_{archivo.FileName}";

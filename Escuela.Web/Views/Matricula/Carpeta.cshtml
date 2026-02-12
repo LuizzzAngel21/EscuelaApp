@@ -1,0 +1,133 @@
+﻿@{
+    Layout = null;
+    string token = ViewBag.Token as string;
+}
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Carpeta Digital | Admisión 2026</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
+
+    <link rel="stylesheet" href="~/css/carpeta.css" />
+</head>
+<body>
+
+    <div class="folder-wrapper">
+        <div class="folder-card animate__animated animate__fadeIn">
+
+            <div class="text-center mb-4">
+                <i class="fa-solid fa-folder-open fa-3x mb-3" style="color: var(--color-primary);"></i>
+                <h2>Carpeta Digital</h2>
+
+                <p class="text-muted small fw-bold mb-1" id="lblNombreEstudiante">Cargando información...</p>
+                <div class="mt-2">
+                    <span class="text-muted small me-2">ID Trámite:</span>
+                    <span class="token-badge">@token</span>
+                </div>
+
+                <div id="alertaObservacion" class="alert alert-warning text-start shadow-sm mt-3 border-warning" style="display:none;">
+                    <div class="d-flex">
+                        <i class="fa-solid fa-circle-exclamation fs-4 me-3 mt-1 text-warning"></i>
+                        <div>
+                            <h6 class="fw-bold text-dark">Se requiere corrección:</h6>
+                            <p class="mb-0 small text-dark" id="txtObservacion">...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <form id="carpetaForm">
+                <input type="hidden" id="hdnToken" value="@token" />
+
+                <div class="mb-5">
+                    <h5 class="section-title"><i class="fa-solid fa-file-lines me-2"></i>Documentación</h5>
+                    <p class="text-muted small mb-3">Suba los documentos solicitados. Si ya existe un archivo cargado, déjelo vacío para conservarlo.</p>
+
+                    <div class="row g-4">
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">DNI del Estudiante</label>
+                            <input type="file" class="form-control shadow-sm" id="fileDni" accept="image/*,.pdf" required>
+                            <div id="msgDni" class="form-text text-success fw-bold mt-2" style="display:none;">
+                                <i class="fa-solid fa-check-circle me-1"></i>Archivo actual guardado en sistema.
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">Certificado de Notas</label>
+                            <input type="file" class="form-control shadow-sm" id="fileNotas" accept="image/*,.pdf" required>
+                            <div id="msgNotas" class="form-text text-success fw-bold mt-2" style="display:none;">
+                                <i class="fa-solid fa-check-circle me-1"></i>Archivo actual guardado en sistema.
+                            </div>
+                        </div>
+
+                        <div class="col-12">
+                            <label class="form-label fw-bold">Seguro Médico (Opcional)</label>
+                            <input type="file" class="form-control shadow-sm" id="fileSeguro" accept="image/*,.pdf">
+                            <div id="msgSeguro" class="form-text text-success fw-bold mt-2" style="display:none;">
+                                <i class="fa-solid fa-check-circle me-1"></i>Archivo actual guardado en sistema.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    <h5 class="section-title"><i class="fa-regular fa-credit-card me-2"></i>Derecho de Inscripción</h5>
+
+                    <div id="pagoValidado" class="alert alert-success border-success bg-success bg-opacity-10 d-none align-items-center p-4 rounded-3">
+                        <div class="bg-white p-3 rounded-circle shadow-sm me-3">
+                            <i class="fa-solid fa-check fa-2x text-success"></i>
+                        </div>
+                        <div>
+                            <h5 class="mb-1 fw-bold text-success">¡Pago Verificado!</h5>
+                            <p class="mb-0 small text-muted">Su pago de inscripción ya fue procesado correctamente. No es necesario realizarlo nuevamente.</p>
+                        </div>
+                    </div>
+
+                    <div id="formularioPago">
+                        <div class="bg-light p-3 rounded mb-3 border d-flex justify-content-between align-items-center">
+                            <span class="fw-bold text-secondary">Monto a pagar:</span>
+                            <span class="fs-5 fw-bold" style="color: var(--color-primary);">S/ 350.00</span>
+                        </div>
+
+                        <div class="row g-3">
+                            <div class="col-md-7">
+                                <label class="form-label">Número de Tarjeta (VISA)</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-white"><i class="fa-brands fa-cc-visa fs-5 text-primary"></i></span>
+                                    <input type="text" class="form-control" id="cardNumber" placeholder="4000 0000 0000 0000" maxlength="19" required>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label">Vencimiento</label>
+                                <input type="text" class="form-control text-center" id="cardExpiry" placeholder="MM/YY" maxlength="5" required>
+                            </div>
+                            <div class="col-md-2">
+                                <label class="form-label">CVV</label>
+                                <input type="password" class="form-control text-center" id="cardCvv" placeholder="123" maxlength="3" required>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="d-grid mt-5">
+                    <button type="submit" class="btn btn-institutional shadow-lg py-3 fw-bold" style="font-size: 1.1rem;">
+                        <i class="fa-solid fa-paper-plane me-2"></i>ENVIAR CARPETA
+                    </button>
+                </div>
+
+            </form>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="~/js/config.js"></script>
+    <script src="~/js/carpeta.js"></script>
+</body>
+</html>

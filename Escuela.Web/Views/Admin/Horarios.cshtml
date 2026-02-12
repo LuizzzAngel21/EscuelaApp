@@ -1,0 +1,103 @@
+﻿@{
+    ViewData["Title"] = "Gestión de Horarios";
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+}
+
+<div class="container-fluid px-4">
+    <div class="d-flex justify-content-between align-items-center my-4">
+        <div>
+            <h2 class="fw-bold text-dark mb-0">Configuración de Horarios</h2>
+            <p class="text-muted small">Defina la distribución de cursos y docentes por sección.</p>
+        </div>
+    </div>
+
+    <div class="card border-0 shadow-sm mb-4 rounded-4">
+        <div class="card-body p-4">
+            <div class="row g-3 align-items-end">
+                <div class="col-md-4">
+                    <label class="form-label fw-bold text-secondary small">Nivel / Grado Académico</label>
+                    <select id="cboGrado" class="form-select border-light-subtle shadow-none">
+                        <option value="">Cargando grados...</option>
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label fw-bold text-secondary small">Sección de Aula</label>
+                    <select id="cboSeccion" class="form-select border-light-subtle shadow-none" disabled>
+                        <option value="">Seleccione grado primero</option>
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <button id="btnCargar" class="btn btn-primary w-100 py-2 fw-bold rounded-3 shadow-sm" disabled style="background-color: #0b2a4a; border: none;">
+                        <i class="fa-solid fa-calendar-check me-2"></i>Ver Cronograma
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="contenedorCalendario" style="display: none;" class="animate__animated animate__fadeIn">
+        <div class="d-flex align-items-center mb-3 p-3 bg-white rounded-3 shadow-sm border-start border-4 border-warning">
+            <i class="fa-solid fa-circle-info text-warning me-3 fs-4"></i>
+            <div>
+                <span class="text-muted small d-block">Gestionando Horario para:</span>
+                <strong id="lblAulaActual" class="text-dark">---</strong>
+            </div>
+        </div>
+
+        <div class="table-responsive rounded-4 shadow-sm">
+            <table class="timetable table table-bordered mb-0">
+                <thead>
+                    <tr>
+                        <th>Bloque</th>
+                        <th>Lunes</th>
+                        <th>Martes</th>
+                        <th>Miércoles</th>
+                        <th>Jueves</th>
+                        <th>Viernes</th>
+                    </tr>
+                </thead>
+                <tbody id="tbodyHorario">
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalAsignar" data-bs-backdrop="static">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg rounded-4">
+            <div class="modal-header border-0 pb-0" style="background-color: #0b2a4a; border-radius: 15px 15px 0 0;">
+                <h5 class="modal-title text-white fw-bold p-2"><i class="fa-solid fa-plus-circle me-2"></i>Asignar Curso</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <form id="formAsignar">
+                <div class="modal-body p-4">
+                    <div class="bg-light p-3 rounded-3 mb-4 d-flex justify-content-between">
+                        <span id="txtDiaLabel" class="fw-bold text-primary"></span>
+                        <span id="txtHoraLabel" class="text-muted small"></span>
+                    </div>
+
+                    <input type="hidden" id="hdnDia">
+                    <input type="hidden" id="hdnHoraInicio">
+                    <input type="hidden" id="hdnHoraFin">
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold small text-secondary">Curso y Docente Asignado</label>
+                        <select id="cboCurso" class="form-select border-light-subtle shadow-none p-3" required>
+                            <option value="">Cargando catálogo...</option>
+                        </select>
+                        <div class="form-text mt-2"><i class="fa-solid fa-lightbulb me-1"></i> Solo aparecen cursos del grado seleccionado.</div>
+                    </div>
+                </div>
+                <div class="modal-footer border-0 p-4">
+                    <button type="button" class="btn btn-light px-4 fw-bold" data-bs-dismiss="modal">Cerrar</button>
+                    <button type="submit" class="btn btn-dark px-4 fw-bold" style="background-color: #0b2a4a;">Confirmar Asignación</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/js/admin/horarios.js"></script>
+}

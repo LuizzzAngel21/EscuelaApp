@@ -1,0 +1,180 @@
+﻿<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Administración</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+
+    <link rel="stylesheet" href="~/css/admin.css" asp-append-version="true" />
+</head>
+<body>
+
+    <script>
+        if (!localStorage.getItem("tokenEscuela")) {
+            window.location.replace("/Auth/Login");
+        }
+        const rol = localStorage.getItem("usuarioRol");
+        if (rol !== "Administrativo" && rol !== "Director") {
+        }
+
+        if (localStorage.getItem("sidebar-collapsed") === "true") {
+            document.documentElement.classList.add("sidebar-collapsed-init");
+        }
+    </script>
+
+    <div class="app-container">
+
+        <nav class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <div class="sidebar-brand" id="logoToggleSidebar" style="cursor:pointer;">
+                    <i class="fa-solid fa-building-columns"></i>
+                    <span class="sidebar-brand-text ms-2">Administración</span>
+                </div>
+            </div>
+
+            <ul class="sidebar-menu">
+                <li><a href="/Admin/Inicio"><i class="fa-solid fa-chart-pie"></i> <span class="link-text">Dashboard</span></a></li>
+
+                <li class="menu-header small text-uppercase text-white-50 mt-3 mb-2 ps-4"><span class="link-text">Secretaría</span></li>
+
+                <li><a href="/Admin/Solicitudes"><i class="fa-solid fa-inbox"></i> <span class="link-text">Solicitudes Web</span></a></li>
+                <li><a href="/Admin/Matriculas"><i class="fa-solid fa-address-book"></i> <span class="link-text">Libro Matrículas</span></a></li>
+                <li><a href="/Admin/Estudiantes"><i class="fa-solid fa-user-graduate"></i> <span class="link-text">Estudiantes</span></a></li>
+
+                <li class="menu-header small text-uppercase text-white-50 mt-3 mb-2 ps-4"><span class="link-text">Académico</span></li>
+
+                <li><a href="/Admin/Periodos"><i class="fa-regular fa-calendar-check"></i> <span class="link-text">Periodos</span></a></li>
+                <li><a href="/Admin/GradosSecciones"><i class="fa-solid fa-layer-group"></i> <span class="link-text">Grados y Secciones</span></a></li>
+                <li><a href="/Admin/Cursos"><i class="fa-solid fa-book"></i> <span class="link-text">Malla Curricular</span></a></li>
+                <li><a href="/Admin/Horarios"><i class="fa-regular fa-clock"></i> <span class="link-text">Horarios</span></a></li>
+
+                <li class="menu-header small text-uppercase text-white-50 mt-3 mb-2 ps-4"><span class="link-text">Personal</span></li>
+
+                <li><a href="/Admin/Docentes"><i class="fa-solid fa-chalkboard-user"></i> <span class="link-text">Docentes</span></a></li>
+                <li><a href="/Admin/Psicologos"><i class="fa-solid fa-brain"></i> <span class="link-text">Psicólogos</span></a></li>
+
+                <li class="menu-header small text-uppercase text-white-50 mt-3 mb-2 ps-4"><span class="link-text">Comunidad</span></li>
+                <li><a href="/Admin/Comunicados"><i class="fa-solid fa-bullhorn"></i> <span class="link-text">Comunicados</span></a></li>
+                <li><a href="/Admin/Incidencias"><i class="fa-solid fa-triangle-exclamation"></i> <span class="link-text">Incidencias</span></a></li>
+
+                <li style="margin-top: auto; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 10px;">
+                    <a href="#" onclick="logout()"><i class="fa-solid fa-arrow-right-from-bracket"></i> <span class="link-text">Cerrar Sesión</span></a>
+                </li>
+            </ul>
+        </nav>
+
+        <div class="main-wrapper">
+
+            <header class="topbar">
+                <h4 class="m-0" style="font-family: var(--font-heading); color: var(--color-institutional);">
+                    @ViewData["Title"]
+                </h4>
+
+                <div class="d-flex align-items-center gap-4">
+
+                    <div class="dropdown position-relative">
+                        <div class="cursor-pointer" id="navbarDropdownNotif" data-bs-toggle="dropdown">
+                            <i class="fa-regular fa-bell text-secondary fs-5"></i>
+                            <span id="badge-notificaciones" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger border border-light" style="display: none;">0</span>
+                        </div>
+                        <div class="dropdown-menu dropdown-menu-end shadow-lg border-0 mt-3 p-0" style="width: 300px;">
+                            <div class="px-3 py-2 border-bottom bg-light rounded-top"><h6 class="m-0 small fw-bold">Notificaciones</h6></div>
+                            <div class="text-center py-4 text-muted small">Sin novedades</div>
+                        </div>
+                    </div>
+
+                    <div style="width: 1px; height: 25px; background: #E5E7EB;"></div>
+
+                    <div class="position-relative">
+                        <div class="d-flex align-items-center gap-3 cursor-pointer" onclick="toggleUserMenu()">
+                            <div class="text-end d-none d-md-block" style="max-width: 150px;">
+                                <small class="text-muted d-block" style="font-size: 0.7rem;">ADMINISTRADOR</small>
+                                <span class="fw-semibold text-dark d-block text-truncate" id="lblUsuarioTop">Admin</span>
+                            </div>
+                            <div class="avatar-circle">
+                                <i class="fa-solid fa-user-shield"></i>
+                            </div>
+                        </div>
+
+                        <div class="user-dropdown-menu" id="userDropdown">
+                            <div class="dropdown-header">
+                                <p class="m-0 fw-bold text-dark text-truncate" id="lblUsuarioDrop">Admin</p>
+                                <span class="text-muted small d-block" id="lblEmailDrop">admin@escuela.edu</span>
+                            </div>
+                            <a href="#"><i class="fa-solid fa-gear me-2 text-muted"></i> Configuración</a>
+                            <div class="border-top my-1"></div>
+                            <a href="#" onclick="logout()" class="text-danger"><i class="fa-solid fa-power-off me-2"></i> Cerrar Sesión</a>
+                        </div>
+                    </div>
+
+                </div>
+            </header>
+
+            <main class="page-content">
+                @RenderBody()
+            </main>
+
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/config.js"></script>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const nombre = localStorage.getItem("usuarioNombre") || "Administrador";
+            const email = localStorage.getItem("usuarioEmail") || "admin@escuela.edu";
+
+            const lblTop = document.getElementById("lblUsuarioTop");
+            const lblDrop = document.getElementById("lblUsuarioDrop");
+            const lblEmail = document.getElementById("lblEmailDrop");
+
+            if (lblTop) lblTop.innerText = nombre;
+            if (lblDrop) lblDrop.innerText = nombre;
+            if (lblEmail) lblEmail.innerText = email;
+
+            const sidebar = document.getElementById("sidebar");
+            const logoToggle = document.getElementById("logoToggleSidebar");
+
+            if (localStorage.getItem("sidebar-collapsed") === "true") {
+                sidebar.classList.add("collapsed");
+            } else {
+                sidebar.classList.remove("collapsed");
+            }
+            document.documentElement.classList.remove("sidebar-collapsed-init");
+
+            logoToggle.addEventListener("click", () => {
+                sidebar.classList.toggle("collapsed");
+                localStorage.setItem("sidebar-collapsed", sidebar.classList.contains("collapsed"));
+            });
+        });
+
+        function toggleUserMenu() {
+            document.getElementById("userDropdown").classList.toggle("show");
+        }
+
+        document.addEventListener("click", (e) => {
+            const menu = document.getElementById("userDropdown");
+            if (menu && menu.classList.contains("show")) {
+                 if (!menu.contains(e.target) && !e.target.closest('.d-flex.align-items-center.gap-3.cursor-pointer')) {
+                    menu.classList.remove("show");
+                }
+            }
+        });
+
+        function logout() {
+            localStorage.clear();
+            window.location.replace("/Auth/Login");
+        }
+    </script>
+
+    @await RenderSectionAsync("Scripts", required: false)
+
+</body>
+</html>
