@@ -1,0 +1,121 @@
+﻿@{
+    ViewData["Title"] = "Inicio";
+    Layout = "~/Views/Shared/_LayoutPsicologo.cshtml";
+}
+
+<div class="container-fluid">
+
+    ```
+    <div class="row g-4">
+
+        <!-- Citas Hoy -->
+        <div class="col-md-3">
+            <div class="card shadow-sm border-0">
+                <div class="card-body d-flex align-items-center gap-3">
+                    <i class="fa-solid fa-calendar-check fs-2 text-primary"></i>
+                    <div>
+                        <h6 class="text-muted mb-1">Citas Hoy</h6>
+                        <h3 id="lblCitasHoy">0</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Estudiantes Atendidos -->
+        <div class="col-md-3">
+            <div class="card shadow-sm border-0">
+                <div class="card-body d-flex align-items-center gap-3">
+                    <i class="fa-solid fa-user-group fs-2 text-success"></i>
+                    <div>
+                        <h6 class="text-muted mb-1">Estudiantes Atendidos</h6>
+                        <h3 id="lblEstudiantes">0</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Incidencias Registradas -->
+        <div class="col-md-3">
+            <a href="/Psicologo/Incidencias/Create" style="text-decoration:none; color:inherit;">
+                <div class="card shadow-sm border-0">
+                    <div class="card-body d-flex align-items-center gap-3">
+                        <i class="fa-solid fa-triangle-exclamation fs-2 text-danger"></i>
+                        <div>
+                            <h6 class="text-muted mb-1">Incidencias</h6>
+                            <h3 id="lblIncidencias">0</h3>
+                        </div>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        <!-- Expedientes -->
+        <div class="col-md-3">
+            <div class="card shadow-sm border-0">
+                <div class="card-body d-flex align-items-center gap-3">
+                    <i class="fa-solid fa-folder-open fs-2 text-warning"></i>
+                    <div>
+                        <h6 class="text-muted mb-1">Expedientes</h6>
+                        <h3 id="lblExpedientes">0</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Actividad Reciente -->
+    <div class="card mt-4 shadow-sm border-0">
+        <div class="card-header bg-white">
+            <h5 class="mb-0">Actividad Reciente</h5>
+        </div>
+
+        <div class="card-body">
+            <ul class="list-group list-group-flush" id="listaActividad">
+                <li class="list-group-item text-muted">
+                    Sin actividad reciente
+                </li>
+            </ul>
+        </div>
+    </div>
+    ```
+
+</div>
+
+@section Scripts {
+
+    <script>
+
+        const API = CONFIG.API_BASE;
+
+        document.addEventListener("DOMContentLoaded", cargarDashboard);
+
+        async function cargarDashboard(){
+
+            const token = localStorage.getItem("tokenEscuela");
+
+            try{
+
+                const response = await fetch(`${API}/Psicologos/dashboard`,{
+                    headers:{
+                        "Authorization":`Bearer ${token}`
+                    }
+                });
+
+                if(!response.ok) return;
+
+                const data = await response.json();
+
+                document.getElementById("lblCitasHoy").innerText = data.citasHoy;
+                document.getElementById("lblEstudiantes").innerText = data.estudiantesAtendidos;
+                document.getElementById("lblIncidencias").innerText = data.incidencias;
+                document.getElementById("lblExpedientes").innerText = data.expedientes;
+
+            }catch(error){
+                console.error("Error dashboard:",error);
+            }
+        }
+
+    </script>
+
+}
